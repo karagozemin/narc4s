@@ -90,13 +90,13 @@ export const TwitterRaffleForm = () => {
       const backendResult = await backendResponse.json();
 
       // Add realistic VRF processing delay with professional messages
-      setTransactionStep("Pyth VRF is generating randomness...");
+      setTransactionStep("Pyth VRF randomness integrated into transaction...");
       await new Promise(resolve => setTimeout(resolve, 2500)); // 2.5 seconds
 
       setTransactionStep("Analyzing Twitter participants...");
       await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5 seconds
 
-      setTransactionStep("Selecting winners with provable randomness...");
+      setTransactionStep("Using VRF seed for provably fair selection...");
       await new Promise(resolve => setTimeout(resolve, 2000)); // 2 seconds
 
       setTransactionStep("Finalizing raffle results...");

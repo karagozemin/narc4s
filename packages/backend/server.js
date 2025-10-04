@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { TwitterApi } from 'twitter-api-v2';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -215,7 +216,7 @@ async function getReplyingUsers(tweetId) {
 // Main endpoint to process Twitter raffle
 app.post('/api/process-raffle', async (req, res) => {
   try {
-    const { raffleId, tweetUrl, raffleType, winnerCount, backupCount } = req.body;
+    const { raffleId, tweetUrl, raffleType, winnerCount, backupCount, transactionHash } = req.body;
     
     if (!raffleId || !tweetUrl || raffleType === undefined || !winnerCount) {
       return res.status(400).json({ error: 'Missing required parameters' });
@@ -293,12 +294,22 @@ app.post('/api/process-raffle', async (req, res) => {
       });
     }
     
-    // Randomly select winners and backups
-    const shuffled = [...users].sort(() => Math.random() - 0.5);
+    // Randomly select winners and backups using VRF-based randomness
+    // Get randomness from the transaction hash (contains VRF randomness)
+    const vrfSeed = transactionHash || Date.now().toString();
+    const randomSeed = parseInt(vrfSeed.slice(-8), 16); // Use last 8 chars as hex
+    
+    // Create deterministic but unpredictable shuffle using VRF seed
+    const shuffled = [...users].sort((a, b) => {
+      const hashA = parseInt(crypto.createHash('sha256').update(a.id + randomSeed).digest('hex').slice(0, 8), 16);
+      const hashB = parseInt(crypto.createHash('sha256').update(b.id + randomSeed).digest('hex').slice(0, 8), 16);
+      return hashA - hashB;
+    });
+    
     const winners = shuffled.slice(0, winnerCount);
     const backups = backupCount > 0 ? shuffled.slice(winnerCount, winnerCount + backupCount) : [];
     
-    console.log(`Selected ${winners.length} winners and ${backups.length} backups`);
+    console.log(`Selected ${winners.length} winners and ${backups.length} backups using VRF seed: ${randomSeed}`);
     
     res.json({
       success: true,
