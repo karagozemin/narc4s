@@ -72,11 +72,12 @@ export const TwitterRaffleForm = () => {
       console.log("Transaction confirmed:", result);
       setTransactionStep("Processing Twitter data...");
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+      const backendUrl = "https://1a3b2ef0bf9c.ngrok-free.app";
       const backendResponse = await fetch(`${backendUrl}/api/process-raffle`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
           raffleId: result, // Transaction hash as raffle ID
