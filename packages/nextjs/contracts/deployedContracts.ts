@@ -6,14 +6,14 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   10143: {
-    YourContract: {
-      address: "0x124505936ab29bd546b250af96514462bf54f1e6",
+    TwitterRaffle: {
+      address: "0x967d74052FBae8F4117cAd958AaaCb5479f7e816",
       abi: [
         {
           type: "constructor",
           inputs: [
             {
-              name: "_owner",
+              name: "_feeRecipient",
               type: "address",
               internalType: "address",
             },
@@ -21,280 +21,156 @@ const deployedContracts = {
           stateMutability: "nonpayable",
         },
         {
-          type: "receive",
+          type: "function",
+          name: "RAFFLE_FEE",
+          inputs: [],
+          outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "createTwitterRaffle",
+          inputs: [
+            { name: "_tweetUrl", type: "string", internalType: "string" },
+            { name: "_raffleType", type: "uint8", internalType: "enum TwitterRaffle.RaffleType" },
+            { name: "_winnerCount", type: "uint256", internalType: "uint256" },
+            { name: "_backupCount", type: "uint256", internalType: "uint256" }
+          ],
+          outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
           stateMutability: "payable",
         },
         {
           type: "function",
-          name: "greeting",
-          inputs: [],
+          name: "getRaffle",
+          inputs: [{ name: "raffleId", type: "uint256", internalType: "uint256" }],
           outputs: [
             {
               name: "",
-              type: "string",
-              internalType: "string",
-            },
+              type: "tuple",
+              internalType: "struct TwitterRaffle.Raffle",
+              components: [
+                { name: "id", type: "uint256", internalType: "uint256" },
+                { name: "tweetUrl", type: "string", internalType: "string" },
+                { name: "raffleType", type: "uint8", internalType: "enum TwitterRaffle.RaffleType" },
+                { name: "winnerCount", type: "uint256", internalType: "uint256" },
+                { name: "backupCount", type: "uint256", internalType: "uint256" },
+                { name: "creator", type: "address", internalType: "address" },
+                { name: "createdAt", type: "uint256", internalType: "uint256" },
+                { name: "status", type: "uint8", internalType: "enum TwitterRaffle.RaffleStatus" },
+                { name: "participants", type: "address[]", internalType: "address[]" },
+                { name: "winners", type: "address[]", internalType: "address[]" },
+                { name: "backups", type: "address[]", internalType: "address[]" },
+                { name: "vrfRequestId", type: "uint256", internalType: "uint256" }
+              ]
+            }
           ],
           stateMutability: "view",
         },
         {
           type: "function",
-          name: "owner",
-          inputs: [],
+          name: "getRaffleParticipants",
+          inputs: [{ name: "raffleId", type: "uint256", internalType: "uint256" }],
+          outputs: [{ name: "", type: "address[]", internalType: "address[]" }],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getRaffleWinners",
+          inputs: [{ name: "raffleId", type: "uint256", internalType: "uint256" }],
           outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
+            { name: "winners", type: "address[]", internalType: "address[]" },
+            { name: "backups", type: "address[]", internalType: "address[]" }
           ],
           stateMutability: "view",
         },
         {
           type: "function",
-          name: "premium",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
+          name: "getRecentRaffles",
+          inputs: [{ name: "limit", type: "uint256", internalType: "uint256" }],
+          outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
           stateMutability: "view",
         },
         {
           type: "function",
-          name: "setGreeting",
+          name: "getRaffleTypeString",
+          inputs: [{ name: "_type", type: "uint8", internalType: "enum TwitterRaffle.RaffleType" }],
+          outputs: [{ name: "", type: "string", internalType: "string" }],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
+          name: "getUserRaffles",
+          inputs: [{ name: "user", type: "address", internalType: "address" }],
+          outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getTotalRaffles",
+          inputs: [],
+          outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "isTweetProcessed",
+          inputs: [{ name: "tweetUrl", type: "string", internalType: "string" }],
+          outputs: [{ name: "", type: "bool", internalType: "bool" }],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "setParticipants",
           inputs: [
-            {
-              name: "_newGreeting",
-              type: "string",
-              internalType: "string",
-            },
+            { name: "raffleId", type: "uint256", internalType: "uint256" },
+            { name: "_participants", type: "address[]", internalType: "address[]" }
           ],
-          outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "totalCounter",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "userGreetingCounter",
-          inputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "withdraw",
-          inputs: [],
-          outputs: [],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "event",
-          name: "GreetingChange",
-          inputs: [
-            {
-              name: "greetingSetter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "newGreeting",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "premium",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
-          ],
-          anonymous: false,
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 41111142,
-    },
-  },
-  31337: {
-    YourContract: {
-      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
-      abi: [
-        {
-          type: "constructor",
-          inputs: [
-            {
-              name: "_owner",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "receive",
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "greeting",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "owner",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "premium",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bool",
-              internalType: "bool",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "setGreeting",
-          inputs: [
-            {
-              name: "_newGreeting",
-              type: "string",
-              internalType: "string",
-            },
-          ],
-          outputs: [],
-          stateMutability: "payable",
-        },
-        {
-          type: "function",
-          name: "totalCounter",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "userGreetingCounter",
-          inputs: [
-            {
-              name: "",
-              type: "address",
-              internalType: "address",
-            },
-          ],
-          outputs: [
-            {
-              name: "",
-              type: "uint256",
-              internalType: "uint256",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "withdraw",
-          inputs: [],
           outputs: [],
           stateMutability: "nonpayable",
         },
         {
           type: "event",
-          name: "GreetingChange",
+          name: "TwitterRaffleCreated",
           inputs: [
-            {
-              name: "greetingSetter",
-              type: "address",
-              indexed: true,
-              internalType: "address",
-            },
-            {
-              name: "newGreeting",
-              type: "string",
-              indexed: false,
-              internalType: "string",
-            },
-            {
-              name: "premium",
-              type: "bool",
-              indexed: false,
-              internalType: "bool",
-            },
-            {
-              name: "value",
-              type: "uint256",
-              indexed: false,
-              internalType: "uint256",
-            },
+            { name: "raffleId", type: "uint256", indexed: true, internalType: "uint256" },
+            { name: "creator", type: "address", indexed: true, internalType: "address" },
+            { name: "tweetUrl", type: "string", indexed: false, internalType: "string" },
+            { name: "raffleType", type: "uint8", indexed: false, internalType: "enum TwitterRaffle.RaffleType" },
+            { name: "winnerCount", type: "uint256", indexed: false, internalType: "uint256" },
+            { name: "backupCount", type: "uint256", indexed: false, internalType: "uint256" }
           ],
           anonymous: false,
         },
+        {
+          type: "event",
+          name: "RaffleProcessing",
+          inputs: [
+            { name: "raffleId", type: "uint256", indexed: true, internalType: "uint256" },
+            { name: "timestamp", type: "uint256", indexed: false, internalType: "uint256" }
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "WinnersSelected",
+          inputs: [
+            { name: "raffleId", type: "uint256", indexed: true, internalType: "uint256" },
+            { name: "winners", type: "address[]", indexed: false, internalType: "address[]" },
+            { name: "backups", type: "address[]", indexed: false, internalType: "address[]" }
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "RaffleCancelled",
+          inputs: [
+            { name: "raffleId", type: "uint256", indexed: true, internalType: "uint256" },
+            { name: "reason", type: "string", indexed: false, internalType: "string" }
+          ],
+          anonymous: false,
+        }
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 5,
     },
   },
 } as const;
