@@ -1,11 +1,12 @@
-import { ChainWithAttributes, getAlchemyHttpUrl } from "./networks";
+import { ChainWithAttributes, getMonadHttpUrl } from "./networks";
 import { CurrencyAmount, Token } from "@uniswap/sdk-core";
 import { Pair, Route } from "@uniswap/v2-sdk";
 import { Address, createPublicClient, fallback, http, parseAbi } from "viem";
 import { mainnet } from "viem/chains";
 
-const alchemyHttpUrl = getAlchemyHttpUrl(mainnet.id);
-const rpcFallbacks = alchemyHttpUrl ? [http(alchemyHttpUrl), http()] : [http()];
+// Use mainnet for Uniswap price fetching (fallback to regular HTTP if Monad not available)
+const monadHttpUrl = getMonadHttpUrl(mainnet.id);
+const rpcFallbacks = monadHttpUrl ? [http(monadHttpUrl), http()] : [http()];
 const publicClient = createPublicClient({
   chain: mainnet,
   transport: fallback(rpcFallbacks),

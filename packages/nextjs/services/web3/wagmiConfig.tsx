@@ -3,7 +3,7 @@ import { Chain, createClient, fallback, http } from "viem";
 import { hardhat, mainnet } from "viem/chains";
 import { createConfig } from "wagmi";
 import scaffoldConfig, { DEFAULT_MONAD_RPC, ScaffoldConfig } from "~~/scaffold.config";
-import { getAlchemyHttpUrl } from "~~/utils/scaffold-eth";
+import { getMonadHttpUrl } from "~~/utils/scaffold-eth";
 
 const { targetNetworks } = scaffoldConfig;
 
@@ -22,10 +22,10 @@ export const wagmiConfig = createConfig({
     if (rpcOverrideUrl) {
       rpcFallbacks = [http(rpcOverrideUrl), http()];
     } else {
-      const alchemyHttpUrl = getAlchemyHttpUrl(chain.id);
-      if (alchemyHttpUrl) {
-        const isUsingDefaultKey = scaffoldConfig.alchemyApiKey === DEFAULT_MONAD_RPC;
-        rpcFallbacks = isUsingDefaultKey ? [http(), http(alchemyHttpUrl)] : [http(alchemyHttpUrl), http()];
+      const monadHttpUrl = getMonadHttpUrl(chain.id);
+      if (monadHttpUrl) {
+        const isUsingDefaultKey = scaffoldConfig.monadRpcUrl === DEFAULT_MONAD_RPC;
+        rpcFallbacks = isUsingDefaultKey ? [http(), http(monadHttpUrl)] : [http(monadHttpUrl), http()];
       }
     }
     return createClient({

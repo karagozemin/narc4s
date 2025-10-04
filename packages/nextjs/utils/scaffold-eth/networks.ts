@@ -36,10 +36,14 @@ export const RPC_CHAIN_NAMES: Record<number, string> = {
   [chains.celoSepolia.id]: "celo-sepolia",
 };
 
-export const getAlchemyHttpUrl = (chainId: number) => {
-  return scaffoldConfig.alchemyApiKey && RPC_CHAIN_NAMES[chainId]
-    ? `https://${RPC_CHAIN_NAMES[chainId]}.g.alchemy.com/v2/${scaffoldConfig.alchemyApiKey}`
-    : undefined;
+// Mapping of chainId to Monad RPC endpoints
+export const MONAD_RPC_ENDPOINTS: Record<number, string> = {
+  [chains.monadTestnet.id]: "https://testnet-rpc.monad.xyz",
+  // Add more Monad networks as they become available
+};
+
+export const getMonadHttpUrl = (chainId: number) => {
+  return MONAD_RPC_ENDPOINTS[chainId] || scaffoldConfig.monadRpcUrl;
 };
 
 export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
@@ -89,6 +93,9 @@ export const NETWORKS_EXTRA_DATA: Record<string, ChainAttributes> = {
   },
   [chains.celoSepolia.id]: {
     color: "#476520",
+  },
+  [chains.monadTestnet.id]: {
+    color: "#6366f1", // Monad purple color
   },
 };
 

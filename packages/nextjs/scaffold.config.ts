@@ -3,7 +3,7 @@ import * as chains from "viem/chains";
 export type BaseConfig = {
   targetNetworks: readonly chains.Chain[];
   pollingInterval: number;
-  alchemyApiKey: string;
+  monadRpcUrl: string;
   rpcOverrides?: Record<number, string>;
   walletConnectProjectId: string;
   onlyLocalBurnerWallet: boolean;
@@ -19,7 +19,7 @@ const scaffoldConfig = {
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
   // Monad RPC endpoint
-  alchemyApiKey: process.env.NEXT_PUBLIC_MONAD_RPC || DEFAULT_MONAD_RPC,
+  monadRpcUrl: process.env.NEXT_PUBLIC_MONAD_RPC || DEFAULT_MONAD_RPC,
   // If you want to use a different RPC for a specific network, you can add it here.
   // The key is the chain ID, and the value is the HTTP RPC URL
   rpcOverrides: {

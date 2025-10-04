@@ -8,8 +8,8 @@ import { readFileSync } from "fs";
 import { parse } from "toml";
 import { ethers } from "ethers";
 
-const ALCHEMY_API_KEY =
-  process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+const MONAD_RPC_URL =
+  process.env.MONAD_RPC_URL || "https://testnet-rpc.monad.xyz";
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -29,15 +29,15 @@ async function getBalanceForEachNetwork(address) {
     const rpcEndpoints = parsedToml.rpc_endpoints;
 
     // Replace placeholders in the rpc_endpoints section
-    function replaceENVAlchemyKey(input) {
-      return input.replace("${ALCHEMY_API_KEY}", ALCHEMY_API_KEY);
+    function replaceENVMonadRPC(input) {
+      return input.replace("${MONAD_RPC_URL}", MONAD_RPC_URL);
     }
 
     console.log(await toString(address, { type: "terminal", small: true }));
     console.log(`\n📊 Address: ${address}`);
 
     for (const networkName in rpcEndpoints) {
-      const networkUrl = replaceENVAlchemyKey(rpcEndpoints[networkName]);
+      const networkUrl = replaceENVMonadRPC(rpcEndpoints[networkName]);
       console.log(`\n--${networkName}-- 📡`);
 
       try {
