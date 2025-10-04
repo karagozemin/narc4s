@@ -2,42 +2,26 @@
 
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { parseEther } from "viem";
-import { useScaffoldWriteContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+
+// Helper function to validate Twitter URL
+const validateTwitterUrl = (url: string): boolean => {
+  const twitterRegex = /^https?:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/;
+  return twitterRegex.test(url);
+};
 
 export const TwitterRaffleForm = () => {
   const { address: connectedAddress } = useAccount();
-  
-  const { writeContractAsync: writeTwitterRaffleAsync } = useScaffoldWriteContract({
-    contractName: "TwitterRaffle"
-  });
-
-  const { data: raffleFee } = useScaffoldReadContract({
-    contractName: "TwitterRaffle",
-    functionName: "RAFFLE_FEE",
-  });
-  
   const [formData, setFormData] = useState({
     tweetUrl: "",
-    raffleType: "0", // 0=LIKES, 1=RETWEETS, 2=COMMENTS
+    raffleType: "0", // 0: Likes, 1: Retweets, 2: Comments
     winnerCount: "1",
-    backupCount: "1"
+    backupCount: "0",
   });
-  
   const [isCreating, setIsCreating] = useState(false);
-  const [lastRaffleId, setLastRaffleId] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const validateTwitterUrl = (url: string): boolean => {
-    const twitterUrlPattern = /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/\w+\/status\/\d+/;
-    return twitterUrlPattern.test(url);
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,59 +59,67 @@ export const TwitterRaffleForm = () => {
     setIsCreating(true);
 
     try {
-      const result = await writeTwitterRaffleAsync({
-        functionName: "createTwitterRaffle",
-        args: [
-          formData.tweetUrl,
-          parseInt(formData.raffleType),
-          BigInt(winnerCount),
-          BigInt(backupCount)
-        ],
-        value: raffleFee ? raffleFee + parseEther("0.01") : parseEther("0.11") // Use contract fee + VRF fee
+      // Call backend to process Twitter data directly
+      const backendResponse = await fetch('http://localhost:3001/api/process-raffle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          raffleId: Date.now(), // Simple ID for now
+          tweetUrl: formData.tweetUrl,
+          raffleType: parseInt(formData.raffleType),
+          winnerCount: winnerCount,
+          backupCount: backupCount
+        })
       });
-
-      console.log("Twitter raffle created with tx:", result);
       
-      // Extract raffle ID from logs if possible
-      // For now, we'll just show success
-      alert("Twitter raffle created successfully! 🎉");
+      const backendResult = await backendResponse.json();
+      
+      if (backendResult.success) {
+        // Display results in a nice format
+        const winnersList = backendResult.winners.map((w: any) => `@${w.username}`).join('\n• ');
+        const backupsList = backendResult.backups.length > 0 
+          ? backendResult.backups.map((b: any) => `@${b.username}`).join('\n• ')
+          : 'None';
+        
+        alert(`🎉 Twitter Raffle Completed Successfully!
+        
+📊 Results:
+• Total Participants: ${backendResult.totalParticipants}
+• Raffle Type: ${backendResult.raffleType}
+
+🏆 Winners (${backendResult.winners.length}):
+• ${winnersList}
+
+🏅 Backup Winners (${backendResult.backups.length}):
+${backupsList === 'None' ? '• None' : '• ' + backupsList}
+
+🔗 Tweet: ${backendResult.tweetUrl}`);
+      } else {
+        alert(`❌ Raffle processing failed: ${backendResult.error}`);
+      }
       
       // Reset form
       setFormData({
         tweetUrl: "",
         raffleType: "0",
         winnerCount: "1",
-        backupCount: "1"
+        backupCount: "0",
       });
       
     } catch (error) {
-      console.error("Error creating Twitter raffle:", error);
-      alert("Failed to create raffle. Please check your balance and try again.");
+      console.error("Error processing raffle:", error);
+      alert("❌ Failed to process raffle. Please check your connection and try again.");
     } finally {
       setIsCreating(false);
     }
   };
 
-  const getRaffleTypeLabel = (type: string) => {
-    switch (type) {
-      case "0": return "👍 Likes";
-      case "1": return "🔄 Retweets";
-      case "2": return "💬 Comments";
-      default: return "👍 Likes";
-    }
-  };
-
   if (!connectedAddress) {
     return (
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">🔗</div>
-        <h3 className="text-xl font-semibold mb-4">Connect Your Wallet</h3>
-        <p className="text-gray-600 mb-6">
-          Please connect your wallet to create Twitter raffles
-        </p>
-        <div className="btn btn-primary btn-disabled">
-          Connect Wallet Required
-        </div>
+      <div className="text-center text-lg text-gray-600">
+        Please connect your wallet to create a Twitter raffle.
       </div>
     );
   }
@@ -136,48 +128,75 @@ export const TwitterRaffleForm = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Tweet URL Input */}
       <div>
-        <label className="label">
-          <span className="label-text font-semibold">🐦 Tweet URL</span>
+        <label htmlFor="tweetUrl" className="block text-sm font-medium text-gray-700 mb-2">
+          Tweet URL
         </label>
         <input
           type="url"
+          id="tweetUrl"
           name="tweetUrl"
           value={formData.tweetUrl}
           onChange={handleInputChange}
-          placeholder="https://twitter.com/username/status/1234567890"
+          placeholder="https://twitter.com/user/status/1234567890 or https://x.com/user/status/1234567890"
           className="input input-bordered w-full"
           required
         />
-        <label className="label">
-          <span className="label-text-alt">Paste the full Twitter/X URL of the giveaway tweet</span>
-        </label>
+        <p className="text-xs text-gray-500 mt-1">
+          Supports both twitter.com and x.com URLs
+        </p>
       </div>
 
       {/* Raffle Type Selection */}
       <div>
-        <label className="label">
-          <span className="label-text font-semibold">🎯 Raffle Type</span>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Raffle Type
         </label>
-        <select
-          name="raffleType"
-          value={formData.raffleType}
-          onChange={handleInputChange}
-          className="select select-bordered w-full"
-        >
-          <option value="0">👍 Likes - Select from users who liked the tweet</option>
-          <option value="1">🔄 Retweets - Select from users who retweeted</option>
-          <option value="2">💬 Comments - Select from users who commented</option>
-        </select>
+        <div className="flex space-x-4">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              name="raffleType"
+              value="0"
+              checked={formData.raffleType === "0"}
+              onChange={handleInputChange}
+              className="radio radio-primary"
+            />
+            <span className="ml-2">👍 Likes</span>
+          </label>
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              name="raffleType"
+              value="1"
+              checked={formData.raffleType === "1"}
+              onChange={handleInputChange}
+              className="radio radio-primary"
+            />
+            <span className="ml-2">🔄 Retweets</span>
+          </label>
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              name="raffleType"
+              value="2"
+              checked={formData.raffleType === "2"}
+              onChange={handleInputChange}
+              className="radio radio-primary"
+            />
+            <span className="ml-2">💬 Comments</span>
+          </label>
+        </div>
       </div>
 
       {/* Winner and Backup Count */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="label">
-            <span className="label-text font-semibold">🏆 Winners</span>
+          <label htmlFor="winnerCount" className="block text-sm font-medium text-gray-700 mb-2">
+            Number of Winners (1-50)
           </label>
           <input
             type="number"
+            id="winnerCount"
             name="winnerCount"
             value={formData.winnerCount}
             onChange={handleInputChange}
@@ -186,17 +205,14 @@ export const TwitterRaffleForm = () => {
             className="input input-bordered w-full"
             required
           />
-          <label className="label">
-            <span className="label-text-alt">1-50 winners</span>
-          </label>
         </div>
-        
         <div>
-          <label className="label">
-            <span className="label-text font-semibold">🔄 Backups</span>
+          <label htmlFor="backupCount" className="block text-sm font-medium text-gray-700 mb-2">
+            Number of Backup Winners (0-20)
           </label>
           <input
             type="number"
+            id="backupCount"
             name="backupCount"
             value={formData.backupCount}
             onChange={handleInputChange}
@@ -205,49 +221,36 @@ export const TwitterRaffleForm = () => {
             className="input input-bordered w-full"
             required
           />
-          <label className="label">
-            <span className="label-text-alt">0-20 backup winners</span>
-          </label>
         </div>
-      </div>
-
-      {/* Fee Display */}
-      <div className="bg-base-200 p-4 rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold">💰 Total Fee:</span>
-          <span className="text-lg font-bold text-primary">
-            {raffleFee ? `${parseFloat((Number(raffleFee + parseEther("0.01")) / 1e18).toFixed(3))} MON` : "0.11 MON"}
-          </span>
-        </div>
-        <p className="text-sm text-gray-600 mt-2">
-          0.1 MON raffle fee + 0.01 MON VRF fee (prevents spam & ensures fair randomness)
-        </p>
       </div>
 
       {/* Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="font-semibold text-blue-800 mb-2">📋 Raffle Summary</h4>
-        <div className="text-sm text-blue-700">
-          <p><strong>Type:</strong> {getRaffleTypeLabel(formData.raffleType)}</p>
-          <p><strong>Winners:</strong> {formData.winnerCount} main + {formData.backupCount} backup</p>
-          <p><strong>URL:</strong> {formData.tweetUrl || "Not entered yet"}</p>
-        </div>
+        <p className="text-sm text-blue-700">
+          Tweet URL: <span className="font-medium">{formData.tweetUrl || "N/A"}</span>
+        </p>
+        <p className="text-sm text-blue-700">
+          Raffle Type: <span className="font-medium">
+            {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments"}
+          </span>
+        </p>
+        <p className="text-sm text-blue-700">
+          Winners: <span className="font-medium">{formData.winnerCount}</span>, Backups: <span className="font-medium">{formData.backupCount}</span>
+        </p>
       </div>
 
       {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isCreating}
-        className={`btn btn-primary btn-lg w-full ${isCreating ? "loading" : ""}`}
-      >
+      <button type="submit" className="btn btn-primary btn-lg w-full" disabled={isCreating}>
         {isCreating ? (
-          <span className="loading loading-spinner"></span>
+          <>
+            <span className="loading loading-spinner"></span>
+            Processing Twitter Raffle...
+          </>
         ) : (
           <>
-            🚀 Create Twitter Raffle
-            <span className="text-sm opacity-80">
-              ({raffleFee ? `${parseFloat((Number(raffleFee + parseEther("0.01")) / 1e18).toFixed(3))} MON` : "0.11 MON"})
-            </span>
+            🎲 Start Twitter Raffle
+            <span className="text-sm opacity-80">(Free - No fees required!)</span>
           </>
         )}
       </button>

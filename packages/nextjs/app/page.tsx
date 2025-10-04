@@ -1,7 +1,7 @@
 "use client";
 
 import type { NextPage } from "next";
-import { TwitterRaffleForm, TwitterRaffleResults } from "~~/components/narc4s";
+import { TwitterRaffleForm } from "~~/components/narc4s";
 
 const Home: NextPage = () => {
   return (
@@ -17,8 +17,8 @@ const Home: NextPage = () => {
             <p className="text-2xl">🎲</p>
           </div>
           <p className="text-center text-lg mb-8 max-w-2xl mx-auto text-gray-600">
-            Create fair and transparent Twitter giveaways using VRF technology. 
-            Simply paste a tweet URL, choose raffle type, and let blockchain ensure fairness!
+            Create fair and transparent Twitter giveaways! 
+            Simply paste a tweet URL, choose raffle type, and get instant results!
           </p>
         </div>
 
@@ -29,14 +29,6 @@ const Home: NextPage = () => {
               <h2 className="text-2xl font-bold text-center mb-6">🐦 Create Twitter Raffle</h2>
               <TwitterRaffleForm />
             </div>
-          </div>
-        </div>
-
-        {/* Recent Raffles Results */}
-        <div className="bg-base-200 w-full px-8 py-12">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">📊 Recent Raffles</h2>
-            <TwitterRaffleResults />
           </div>
         </div>
 
@@ -56,14 +48,41 @@ const Home: NextPage = () => {
                 <p className="text-sm text-gray-600">Choose raffle type (Likes/RTs/Comments) and winner count</p>
               </div>
               <div className="text-center">
-                <div className="text-4xl mb-4">💰</div>
-                <h3 className="text-xl font-semibold mb-2">3. Pay 0.11 MON</h3>
-                <p className="text-sm text-gray-600">0.1 MON raffle fee + 0.01 MON VRF fee for fair randomness</p>
+                <div className="text-4xl mb-4">🎯</div>
+                <h3 className="text-xl font-semibold mb-2">3. Instant Results</h3>
+                <p className="text-sm text-gray-600">Get fair winner selection instantly - no fees required!</p>
               </div>
               <div className="text-center">
-                <div className="text-4xl mb-4">🎯</div>
-                <h3 className="text-xl font-semibold mb-2">4. VRF Selection</h3>
-                <p className="text-sm text-gray-600">Blockchain ensures provably fair winner selection</p>
+                <div className="text-4xl mb-4">📋</div>
+                <h3 className="text-xl font-semibold mb-2">4. Twitter Handles</h3>
+                <p className="text-sm text-gray-600">Get clean list of Twitter usernames like Simpliers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="bg-base-200 w-full px-8 py-12">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12">✨ Features</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body text-center">
+                  <h3 className="card-title justify-center">🆓 Completely Free</h3>
+                  <p>No blockchain fees, no gas costs. Just pure Twitter raffle functionality!</p>
+                </div>
+              </div>
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body text-center">
+                  <h3 className="card-title justify-center">⚡ Instant Results</h3>
+                  <p>Get your winners immediately. No waiting for blockchain confirmations!</p>
+                </div>
+              </div>
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body text-center">
+                  <h3 className="card-title justify-center">🎯 Fair Selection</h3>
+                  <p>Provably random winner selection using secure randomization algorithms!</p>
+                </div>
               </div>
             </div>
           </div>
