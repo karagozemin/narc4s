@@ -42,7 +42,10 @@ const Home: NextPage = () => {
               <div className="w-px h-8 bg-gray-600"></div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-500">Secure</div>
-                <div className="text-sm text-gray-400">VRF Random</div>
+                <div className="flex items-center justify-center space-x-1 text-sm text-gray-400">
+                  <img src="/images/pyth-logo.png" alt="Pyth" className="w-3 h-3" />
+                  <span>VRF Random</span>
+                </div>
               </div>
             </div>
           </div>
@@ -139,9 +142,12 @@ const Home: NextPage = () => {
                   <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
                     <span className="text-xl">🔒</span>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">Provably Fair</h3>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <h3 className="text-xl font-semibold text-white">Provably Fair</h3>
+                    <img src="/images/pyth-logo.png" alt="Pyth VRF" className="w-5 h-5" />
+                  </div>
                   <p className="text-gray-400 leading-relaxed">
-                    VRF-powered randomness ensures transparent winner selection.
+                    Pyth VRF-powered randomness ensures transparent winner selection.
                   </p>
                 </div>
               </div>

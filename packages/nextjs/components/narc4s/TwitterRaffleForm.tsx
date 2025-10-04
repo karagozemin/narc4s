@@ -281,7 +281,14 @@ export const TwitterRaffleForm = () => {
               {parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON
             </span>
           </div>
-          <p className="text-sm text-gray-400">0.1 MON raffle fee + 0.01 MON VRF fee (Pyth Entropy randomness)</p>
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-400">
+            <span>0.1 MON raffle fee + 0.01 MON VRF fee</span>
+            <div className="flex items-center space-x-1">
+              <span>(</span>
+              <img src="/images/pyth-logo.png" alt="Pyth" className="w-4 h-4" />
+              <span>Pyth Entropy randomness)</span>
+            </div>
+          </div>
         </div>
 
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
