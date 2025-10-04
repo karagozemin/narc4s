@@ -70,6 +70,7 @@ export const TwitterRaffleForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          raffleId: result, // Transaction hash as raffle ID
           tweetUrl: formData.tweetUrl,
           raffleType: formData.raffleType,
           winnerCount: parseInt(formData.winnerCount),
