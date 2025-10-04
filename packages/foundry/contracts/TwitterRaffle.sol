@@ -12,19 +12,20 @@ import "./PythVRFConsumer.sol";
  * @author NARC4S Team
  */
 contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
-    
     // Raffle types
     enum RaffleType {
-        LIKES,      // 0 - From tweet likes
-        RETWEETS,   // 1 - From retweets
-        COMMENTS    // 2 - From comments
+        LIKES, // 0 - From tweet likes
+        RETWEETS, // 1 - From retweets
+        COMMENTS // 2 - From comments
+
     }
-    
+
     // Raffle status enum
     enum RaffleStatus {
-        PROCESSING,   // VRF in progress
-        COMPLETED,    // Results ready
-        CANCELLED     // Raffle cancelled
+        PROCESSING, // VRF in progress
+        COMPLETED, // Results ready
+        CANCELLED // Raffle cancelled
+
     }
 
     // Twitter Raffle struct
@@ -46,11 +47,18 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
     // State variables
     uint256 public nextRaffleId = 1;
     uint256 public constant RAFFLE_FEE = 0.1 ether; // 0.1 MON
-    uint256 public constant VRF_FEE = 0.01 ether; // 0.01 MON for VRF
+
+    /**
+     * @dev Get VRF fee from Pyth Entropy
+     */
+    function VRF_FEE() public view returns (uint256) {
+        return uint256(getVRFFee());
+    }
+
     uint256 public constant REVEAL_DELAY = 2; // 2 blocks delay
     uint256 public constant DEFAULT_GAS_LIMIT = 500000; // 500k gas
     address public feeRecipient;
-    
+
     mapping(uint256 => Raffle) public raffles;
     mapping(address => uint256[]) public userRaffles;
     mapping(string => bool) public processedTweets; // Prevent duplicate tweets
@@ -65,22 +73,12 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         uint256 winnerCount,
         uint256 backupCount
     );
-    
-    event RaffleProcessing(
-        uint256 indexed raffleId,
-        uint256 timestamp
-    );
-    
-    event WinnersSelected(
-        uint256 indexed raffleId,
-        address[] winners,
-        address[] backups
-    );
-    
-    event RaffleCancelled(
-        uint256 indexed raffleId,
-        string reason
-    );
+
+    event RaffleProcessing(uint256 indexed raffleId, uint256 timestamp);
+
+    event WinnersSelected(uint256 indexed raffleId, address[] winners, address[] backups);
+
+    event RaffleCancelled(uint256 indexed raffleId, string reason);
 
     // Modifiers
     modifier raffleExists(uint256 raffleId) {
@@ -93,9 +91,9 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         _;
     }
 
-    constructor(address _feeRecipient, address _pythEntropyAddress) 
-        Ownable(msg.sender) 
-        PythVRFConsumer(_pythEntropyAddress) 
+    constructor(address _feeRecipient)
+        Ownable(msg.sender)
+        PythVRFConsumer(0x36825bf3Fbdf5a29E2d5148bfe7Dcf7B5639e320) // Monad Pyth VRF
     {
         feeRecipient = _feeRecipient;
     }
@@ -116,7 +114,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         require(!processedTweets[_tweetUrl], "Tweet already processed");
 
         uint256 raffleId = nextRaffleId++;
-        
+
         Raffle storage newRaffle = raffles[raffleId];
         newRaffle.id = raffleId;
         newRaffle.tweetUrl = _tweetUrl;
@@ -126,7 +124,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         newRaffle.creator = msg.sender;
         newRaffle.createdAt = block.timestamp;
         newRaffle.status = RaffleStatus.PROCESSING;
-        
+
         processedTweets[_tweetUrl] = true;
         userRaffles[msg.sender].push(raffleId);
 
@@ -137,14 +135,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         payable(feeRecipient).transfer(RAFFLE_FEE);
         // VRF_FEE will be used for Pyth VRF request
 
-        emit TwitterRaffleCreated(
-            raffleId,
-            msg.sender,
-            _tweetUrl,
-            _raffleType,
-            _winnerCount,
-            _backupCount
-        );
+        emit TwitterRaffleCreated(raffleId, msg.sender, _tweetUrl, _raffleType, _winnerCount, _backupCount);
 
         emit RaffleProcessing(raffleId, block.timestamp);
 
@@ -161,18 +152,14 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         Raffle storage raffle = raffles[raffleId];
         require(raffle.participants.length > 0, "No participants");
         require(raffle.status == RaffleStatus.PROCESSING, "Invalid status");
-        
+
         // Create user random number from raffle data
-        bytes32 userRandomNumber = keccak256(abi.encodePacked(
-            raffleId,
-            raffle.tweetUrl,
-            raffle.participants.length,
-            block.timestamp
-        ));
-        
+        bytes32 userRandomNumber =
+            keccak256(abi.encodePacked(raffleId, raffle.tweetUrl, raffle.participants.length, block.timestamp));
+
         // Request randomness from Pyth VRF
         uint64 sequenceNumber = _requestRandomness(userRandomNumber);
-        
+
         // Map VRF sequence to raffle ID
         vrfToRaffle[sequenceNumber] = raffleId;
         raffle.vrfRequestId = sequenceNumber;
@@ -181,11 +168,21 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
     /**
      * @dev Fulfill VRF request and select winners
      */
-    function fulfillVRF(uint64 sequenceNumber) external {
-        uint256 raffleId = vrfToRaffle[sequenceNumber];
-        require(raffleId != 0, "Invalid sequence number");
-        
-        _fulfillRandomness(sequenceNumber);
+    /**
+     * @dev Reveal randomness and complete raffle (called after reveal delay)
+     */
+    function revealRandomness(uint256 raffleId, bytes32 userRandomness) external {
+        require(raffles[raffleId].creator == msg.sender, "Only raffle creator");
+        require(raffles[raffleId].status == RaffleStatus.PENDING, "Raffle not pending");
+
+        uint64 sequenceNumber = raffles[raffleId].vrfRequestId;
+        require(sequenceNumber != 0, "No VRF request found");
+
+        // Reveal randomness from Pyth VRF
+        bytes32 randomness = _revealRandomness(sequenceNumber, userRandomness);
+
+        // Use the randomness
+        _useRandomness(sequenceNumber, randomness);
     }
 
     /**
@@ -206,7 +203,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         // 2. Extracts participant addresses (from bio, replies, etc.)
         // 3. Calls setParticipants() with the fetched data
         // 4. Triggers VRF for winner selection
-        
+
         // For demo purposes, we'll create some mock participants
         address[] memory mockParticipants = new address[](10);
         mockParticipants[0] = 0x1234567890123456789012345678901234567890;
@@ -219,9 +216,9 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
         mockParticipants[7] = 0x8901234567890123456789012345678901234567;
         mockParticipants[8] = 0x9012345678901234567890123456789012345678;
         mockParticipants[9] = 0xA123456789012345678901234567890123456789;
-        
+
         raffles[raffleId].participants = mockParticipants;
-        
+
         // Auto-trigger VRF after setting participants
         _triggerVRFInternal(raffleId);
     }
@@ -231,15 +228,11 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
      */
     function _triggerVRFInternal(uint256 raffleId) internal {
         Raffle storage raffle = raffles[raffleId];
-        
+
         // Create user random number from raffle data
-        bytes32 userRandomNumber = keccak256(abi.encodePacked(
-            raffleId,
-            raffle.tweetUrl,
-            raffle.participants.length,
-            block.timestamp
-        ));
-        
+        bytes32 userRandomNumber =
+            keccak256(abi.encodePacked(raffleId, raffle.tweetUrl, raffle.participants.length, block.timestamp));
+
         // For demo, we'll use pseudo-random until Pyth VRF is fully integrated
         _selectWinnersWithVRF(raffleId, userRandomNumber);
     }
@@ -249,7 +242,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
      */
     function _selectWinnersWithVRF(uint256 raffleId, bytes32 randomness) internal {
         Raffle storage raffle = raffles[raffleId];
-        
+
         require(raffle.participants.length > 0, "No participants");
         require(raffle.participants.length >= raffle.winnerCount, "Not enough participants");
 
@@ -258,7 +251,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
 
         // Select winners
         bool[] memory selected = new bool[](raffle.participants.length);
-        
+
         // Select main winners
         for (uint256 i = 0; i < raffle.winnerCount; i++) {
             uint256 randomIndex;
@@ -266,7 +259,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
                 seed = uint256(keccak256(abi.encodePacked(seed, i)));
                 randomIndex = seed % raffle.participants.length;
             } while (selected[randomIndex]);
-            
+
             selected[randomIndex] = true;
             raffle.winners.push(raffle.participants[randomIndex]);
         }
@@ -280,7 +273,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
                 randomIndex = seed % raffle.participants.length;
                 attempts++;
             } while (selected[randomIndex] && attempts < 100);
-            
+
             if (!selected[randomIndex]) {
                 selected[randomIndex] = true;
                 raffle.backups.push(raffle.participants[randomIndex]);
@@ -295,18 +288,15 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
      * @dev Set participants for a raffle (called by oracle/backend)
      * In production, this would be restricted to oracle address
      */
-    function setParticipants(
-        uint256 raffleId,
-        address[] memory _participants
-    ) external raffleExists(raffleId) {
+    function setParticipants(uint256 raffleId, address[] memory _participants) external raffleExists(raffleId) {
         // In production, add oracle access control here
         require(_participants.length > 0, "No participants");
-        
+
         Raffle storage raffle = raffles[raffleId];
         require(raffle.status == RaffleStatus.PROCESSING, "Invalid status");
-        
+
         raffle.participants = _participants;
-        
+
         // Trigger VRF for winner selection
         _triggerVRFInternal(raffleId);
     }
@@ -314,35 +304,25 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
     /**
      * @dev Get raffle details
      */
-    function getRaffle(uint256 raffleId) 
-        external 
-        view 
-        raffleExists(raffleId) 
-        returns (Raffle memory) 
-    {
+    function getRaffle(uint256 raffleId) external view raffleExists(raffleId) returns (Raffle memory) {
         return raffles[raffleId];
     }
 
     /**
      * @dev Get raffle participants
      */
-    function getRaffleParticipants(uint256 raffleId) 
-        external 
-        view 
-        raffleExists(raffleId) 
-        returns (address[] memory) 
-    {
+    function getRaffleParticipants(uint256 raffleId) external view raffleExists(raffleId) returns (address[] memory) {
         return raffles[raffleId].participants;
     }
 
     /**
      * @dev Get raffle winners
      */
-    function getRaffleWinners(uint256 raffleId) 
-        external 
-        view 
-        raffleExists(raffleId) 
-        returns (address[] memory winners, address[] memory backups) 
+    function getRaffleWinners(uint256 raffleId)
+        external
+        view
+        raffleExists(raffleId)
+        returns (address[] memory winners, address[] memory backups)
     {
         Raffle storage raffle = raffles[raffleId];
         return (raffle.winners, raffle.backups);
@@ -351,42 +331,30 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
     /**
      * @dev Get user's raffles
      */
-    function getUserRaffles(address user) 
-        external 
-        view 
-        returns (uint256[] memory) 
-    {
+    function getUserRaffles(address user) external view returns (uint256[] memory) {
         return userRaffles[user];
     }
 
     /**
      * @dev Get recent raffles
      */
-    function getRecentRaffles(uint256 limit) 
-        external 
-        view 
-        returns (uint256[] memory) 
-    {
+    function getRecentRaffles(uint256 limit) external view returns (uint256[] memory) {
         uint256 totalRaffles = nextRaffleId - 1;
         uint256 resultCount = limit > totalRaffles ? totalRaffles : limit;
-        
+
         uint256[] memory result = new uint256[](resultCount);
-        
+
         for (uint256 i = 0; i < resultCount; i++) {
             result[i] = totalRaffles - i;
         }
-        
+
         return result;
     }
 
     /**
      * @dev Get raffle type as string
      */
-    function getRaffleTypeString(RaffleType _type) 
-        external 
-        pure 
-        returns (string memory) 
-    {
+    function getRaffleTypeString(RaffleType _type) external pure returns (string memory) {
         if (_type == RaffleType.LIKES) return "Likes";
         if (_type == RaffleType.RETWEETS) return "Retweets";
         if (_type == RaffleType.COMMENTS) return "Comments";
@@ -396,11 +364,7 @@ contract TwitterRaffle is Ownable, ReentrancyGuard, Pausable, PythVRFConsumer {
     /**
      * @dev Check if tweet has been processed
      */
-    function isTweetProcessed(string memory tweetUrl) 
-        external 
-        view 
-        returns (bool) 
-    {
+    function isTweetProcessed(string memory tweetUrl) external view returns (bool) {
         return processedTweets[tweetUrl];
     }
 

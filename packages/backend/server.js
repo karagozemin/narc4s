@@ -303,8 +303,19 @@ app.post('/api/process-raffle', async (req, res) => {
     
   } catch (error) {
     console.error('Error processing raffle:', error);
+    
+    // Check if it's a rate limit error
+    if (error.message && error.message.includes('rate limit exceeded')) {
+      return res.status(429).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+    
+    // Generic error response
     res.status(500).json({ 
-      error: 'Internal server error',
+      success: false,
+      error: 'Failed to process raffle. Please try again later.',
       details: error.message 
     });
   }

@@ -3,74 +3,80 @@ pragma solidity ^0.8.19;
 
 /**
  * @title IPythEntropy
- * @dev Pyth Entropy interface for random number generation
+ * @dev Pyth Entropy interface for random number generation on Monad
  */
 interface IPythEntropy {
-    function getEntropy() external view returns (bytes32);
-    
-    function requestRandomness(
-        bytes32 userRandomNumber
-    ) external payable returns (uint64 sequenceNumber);
-    
-    function revealRandomness(
-        uint64 sequenceNumber
-    ) external view returns (bytes32 randomNumber);
+    function getDefaultProvider() external view returns (address);
+    function request(address provider, bytes32 userCommitment, bool useBlockhash) external payable returns (uint64);
+    function reveal(address provider, uint64 sequenceNumber, bytes32 userRandomness) external view returns (bytes32);
+    function getFee(address provider) external view returns (uint128);
 }
 
 /**
  * @title PythVRFConsumer
- * @dev Base contract for consuming Pyth Entropy VRF
+ * @dev Base contract for consuming Pyth Entropy VRF on Monad
  */
 abstract contract PythVRFConsumer {
     IPythEntropy public immutable pythEntropy;
-    
-    // Mapping from sequence number to request details
+    address public immutable defaultProvider;
+
+    // VRF request tracking
+    mapping(uint64 => bytes32) public userCommitments;
     mapping(uint64 => address) public requesters;
     mapping(uint64 => bool) public fulfilled;
-    
-    event RandomnessRequested(uint64 indexed sequenceNumber, address indexed requester);
+
+    event RandomnessRequested(uint64 indexed sequenceNumber, address indexed requester, bytes32 userCommitment);
     event RandomnessFulfilled(uint64 indexed sequenceNumber, bytes32 randomness);
-    
+
     constructor(address _pythEntropyAddress) {
         pythEntropy = IPythEntropy(_pythEntropyAddress);
+        defaultProvider = pythEntropy.getDefaultProvider();
     }
-    
+
     /**
      * @dev Request randomness from Pyth Entropy
      */
-    function _requestRandomness(bytes32 userRandomNumber) internal returns (uint64) {
-        // For demo purposes, we'll simulate the VRF request
-        // In production, this would call Pyth Entropy with proper value handling
-        uint64 sequenceNumber = uint64(uint256(keccak256(abi.encodePacked(
-            block.timestamp,
-            userRandomNumber,
-            msg.sender
-        ))));
-        
+    function _requestRandomness(bytes32 userCommitment) internal returns (uint64) {
+        uint128 fee = pythEntropy.getFee(defaultProvider);
+        require(msg.value >= fee, "Insufficient fee for VRF request");
+
+        uint64 sequenceNumber = pythEntropy.request{value: fee}(
+            defaultProvider,
+            userCommitment,
+            true // use blockhash for additional entropy
+        );
+
+        userCommitments[sequenceNumber] = userCommitment;
         requesters[sequenceNumber] = msg.sender;
-        
-        emit RandomnessRequested(sequenceNumber, msg.sender);
+
+        emit RandomnessRequested(sequenceNumber, msg.sender, userCommitment);
         return sequenceNumber;
     }
-    
+
     /**
-     * @dev Reveal and use randomness
+     * @dev Reveal randomness from Pyth Entropy (called after reveal delay)
      */
-    function _fulfillRandomness(uint64 sequenceNumber) internal {
-        require(!fulfilled[sequenceNumber], "Already fulfilled");
-        
-        bytes32 randomness = pythEntropy.revealRandomness(sequenceNumber);
+    function _revealRandomness(uint64 sequenceNumber, bytes32 userRandomness) internal returns (bytes32) {
+        require(!fulfilled[sequenceNumber], "Request already fulfilled");
+        require(userCommitments[sequenceNumber] != bytes32(0), "Invalid sequence number");
+        require(requesters[sequenceNumber] == msg.sender, "Not the requester");
+
+        bytes32 randomness = pythEntropy.reveal(defaultProvider, sequenceNumber, userRandomness);
         fulfilled[sequenceNumber] = true;
-        
+
         emit RandomnessFulfilled(sequenceNumber, randomness);
-        
-        // Call the implementation-specific function
-        _useRandomness(sequenceNumber, randomness);
+        return randomness;
     }
-    
+
+    /**
+     * @dev Get VRF fee from Pyth Entropy
+     */
+    function getVRFFee() public view returns (uint128) {
+        return pythEntropy.getFee(defaultProvider);
+    }
+
     /**
      * @dev Override this function to handle randomness
      */
     function _useRandomness(uint64 sequenceNumber, bytes32 randomness) internal virtual;
 }
-

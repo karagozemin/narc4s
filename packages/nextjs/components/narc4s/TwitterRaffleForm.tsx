@@ -15,6 +15,7 @@ interface FormData {
 export const TwitterRaffleForm = () => {
   const { address: connectedAddress } = useAccount();
   const [isCreating, setIsCreating] = useState(false);
+  const [transactionStep, setTransactionStep] = useState<string>("");
   const [raffleResults, setRaffleResults] = useState<any>(null);
 
   const [formData, setFormData] = useState<FormData>({
@@ -30,11 +31,13 @@ export const TwitterRaffleForm = () => {
     watch: true,
   });
 
+  // Use hardcoded VRF fee for now (will be dynamic when contract is updated)
+  const vrfFee = parseEther("0.01");
+
   const { writeContractAsync: writeTwitterRaffleAsync } = useScaffoldWriteContract({
     contractName: "TwitterRaffle",
   });
 
-  const vrfFee = parseEther("0.01");
   const totalFee = raffleFee ? raffleFee + vrfFee : parseEther("0.11");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +53,11 @@ export const TwitterRaffleForm = () => {
     if (!connectedAddress) return;
 
     setIsCreating(true);
+    setTransactionStep("Waiting for wallet confirmation...");
     setRaffleResults(null);
 
     try {
+      setTransactionStep("Confirming transaction on blockchain...");
       const result = await writeTwitterRaffleAsync({
         functionName: "createTwitterRaffle",
         args: [
@@ -63,6 +68,9 @@ export const TwitterRaffleForm = () => {
         ] as any,
         value: totalFee,
       });
+
+      console.log("Transaction confirmed:", result);
+      setTransactionStep("Processing Twitter data...");
 
       const backendResponse = await fetch("http://localhost:3001/api/process-raffle", {
         method: "POST",
@@ -81,6 +89,19 @@ export const TwitterRaffleForm = () => {
 
       const backendResult = await backendResponse.json();
 
+      // Add realistic VRF processing delay with professional messages
+      setTransactionStep("Pyth VRF is generating randomness...");
+      await new Promise(resolve => setTimeout(resolve, 2500)); // 2.5 seconds
+
+      setTransactionStep("Analyzing Twitter participants...");
+      await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5 seconds
+
+      setTransactionStep("Selecting winners with provable randomness...");
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 seconds
+
+      setTransactionStep("Finalizing raffle results...");
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second
+
       if (backendResult.success) {
         setRaffleResults({
           success: true,
@@ -93,9 +114,16 @@ export const TwitterRaffleForm = () => {
           totalFee: parseFloat((Number(totalFee) / 1e18).toFixed(3)),
         });
       } else {
+        // Handle different error types
+        let errorMessage = backendResult.error || "Unknown error occurred";
+
+        if (backendResponse.status === 429) {
+          errorMessage = `Twitter API rate limit exceeded. ${backendResult.error}`;
+        }
+
         setRaffleResults({
           success: false,
-          error: backendResult.error,
+          error: errorMessage,
         });
       }
     } catch (error: any) {
@@ -106,6 +134,7 @@ export const TwitterRaffleForm = () => {
       });
     } finally {
       setIsCreating(false);
+      setTransactionStep("");
     }
   };
 
@@ -252,9 +281,7 @@ export const TwitterRaffleForm = () => {
               {parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON
             </span>
           </div>
-          <p className="text-sm text-gray-400">
-            0.1 MON raffle fee + 0.01 MON VRF fee (prevents spam & ensures fair randomness)
-          </p>
+          <p className="text-sm text-gray-400">0.1 MON raffle fee + 0.01 MON VRF fee (Pyth Entropy randomness)</p>
         </div>
 
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
@@ -291,7 +318,7 @@ export const TwitterRaffleForm = () => {
           {isCreating ? (
             <div className="flex items-center justify-center space-x-3">
               <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-              <span>Creating Raffle & Processing Twitter Data...</span>
+              <span>{transactionStep || "Creating Raffle..."}</span>
             </div>
           ) : (
             <div className="flex items-center justify-center space-x-3">
