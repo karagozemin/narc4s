@@ -17,8 +17,8 @@ const Home: NextPage = () => {
             <p className="text-2xl">🎲</p>
           </div>
           <p className="text-center text-lg mb-8 max-w-2xl mx-auto text-gray-600">
-            Create fair and transparent Twitter giveaways! 
-            Simply paste a tweet URL, choose raffle type, and get instant results!
+            Create fair and transparent Twitter giveaways! Simply paste a tweet URL, choose raffle type, and get instant
+            results!
           </p>
         </div>
 
@@ -48,9 +48,9 @@ const Home: NextPage = () => {
                 <p className="text-sm text-gray-600">Choose raffle type (Likes/RTs/Comments) and winner count</p>
               </div>
               <div className="text-center">
-                <div className="text-4xl mb-4">🎯</div>
-                <h3 className="text-xl font-semibold mb-2">3. Instant Results</h3>
-                <p className="text-sm text-gray-600">Get fair winner selection instantly - no fees required!</p>
+                <div className="text-4xl mb-4">💰</div>
+                <h3 className="text-xl font-semibold mb-2">3. Pay 0.11 MON</h3>
+                <p className="text-sm text-gray-600">0.1 MON commission + 0.01 MON VRF fee for fair randomness</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-4">📋</div>
@@ -68,8 +68,8 @@ const Home: NextPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="card bg-base-100 shadow-xl">
                 <div className="card-body text-center">
-                  <h3 className="card-title justify-center">🆓 Completely Free</h3>
-                  <p>No blockchain fees, no gas costs. Just pure Twitter raffle functionality!</p>
+                  <h3 className="card-title justify-center">💰 Commission Based</h3>
+                  <p>0.11 MON per raffle to prevent spam and ensure quality service!</p>
                 </div>
               </div>
               <div className="card bg-base-100 shadow-xl">

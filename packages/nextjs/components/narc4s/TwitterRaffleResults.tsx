@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { Address } from "~~/components/scaffold-eth";
-import { formatEther } from "viem";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 interface RaffleData {
   id: bigint;
@@ -19,6 +18,48 @@ interface RaffleData {
   backups: readonly string[];
   vrfRequestId: bigint;
 }
+
+// Helper functions
+const getRaffleTypeLabel = (type: number) => {
+  switch (type) {
+    case 0:
+      return "👍 Likes";
+    case 1:
+      return "🔄 Retweets";
+    case 2:
+      return "💬 Comments";
+    default:
+      return "Unknown";
+  }
+};
+
+const getRaffleStatusLabel = (status: number) => {
+  switch (status) {
+    case 0:
+      return { label: "🔄 Processing", color: "text-yellow-600" };
+    case 1:
+      return { label: "✅ Completed", color: "text-green-600" };
+    case 2:
+      return { label: "❌ Cancelled", color: "text-red-600" };
+    default:
+      return { label: "Unknown", color: "text-gray-600" };
+  }
+};
+
+const formatTimeAgo = (timestamp: bigint) => {
+  const now = Date.now() / 1000;
+  const diff = now - Number(timestamp);
+
+  if (diff < 60) return "Just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+};
+
+const extractTweetId = (url: string) => {
+  const match = url.match(/status\/(\d+)/);
+  return match ? match[1] : null;
+};
 
 export const TwitterRaffleResults = () => {
   const [selectedRaffleId, setSelectedRaffleId] = useState<number | null>(null);
@@ -40,42 +81,12 @@ export const TwitterRaffleResults = () => {
   const { data: selectedRaffle, isLoading: isLoadingRaffle } = useScaffoldReadContract({
     contractName: "TwitterRaffle",
     functionName: "getRaffle",
-    args: selectedRaffleId ? [BigInt(selectedRaffleId)] : undefined,
+    args:
+      selectedRaffleId !== null
+        ? ([BigInt(selectedRaffleId)] as readonly [bigint | undefined])
+        : ([undefined] as readonly [bigint | undefined]),
     watch: true, // Watch for updates
   });
-
-  const getRaffleTypeLabel = (type: number) => {
-    switch (type) {
-      case 0: return "👍 Likes";
-      case 1: return "🔄 Retweets";
-      case 2: return "💬 Comments";
-      default: return "Unknown";
-    }
-  };
-
-  const getRaffleStatusLabel = (status: number) => {
-    switch (status) {
-      case 0: return { label: "🔄 Processing", color: "text-yellow-600" };
-      case 1: return { label: "✅ Completed", color: "text-green-600" };
-      case 2: return { label: "❌ Cancelled", color: "text-red-600" };
-      default: return { label: "Unknown", color: "text-gray-600" };
-    }
-  };
-
-  const formatTimeAgo = (timestamp: bigint) => {
-    const now = Date.now() / 1000;
-    const diff = now - Number(timestamp);
-    
-    if (diff < 60) return "Just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
-  };
-
-  const extractTweetId = (url: string) => {
-    const match = url.match(/status\/(\d+)/);
-    return match ? match[1] : null;
-  };
 
   if (isLoadingIds) {
     return (
@@ -96,7 +107,8 @@ export const TwitterRaffleResults = () => {
         </p>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
           <p className="text-sm text-blue-700">
-            <strong>Connected to Contract:</strong><br />
+            <strong>Connected to Contract:</strong>
+            <br />
             <code className="text-xs">0xBBFF3EbD7709945a46b5956D9fA5FEfED2Aa1594</code>
           </p>
           <p className="text-sm text-blue-700 mt-2">
@@ -113,7 +125,9 @@ export const TwitterRaffleResults = () => {
       <div className="bg-base-100 rounded-lg p-6 shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-primary">{totalRaffles ? Number(totalRaffles).toString() : "0"}</div>
+            <div className="text-2xl font-bold text-primary">
+              {totalRaffles ? Number(totalRaffles).toString() : "0"}
+            </div>
             <div className="text-sm text-gray-600">Total Raffles</div>
           </div>
           <div>
@@ -129,7 +143,7 @@ export const TwitterRaffleResults = () => {
 
       {/* Raffle List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {recentRaffleIds.map((raffleId) => (
+        {recentRaffleIds.map(raffleId => (
           <RaffleCard
             key={Number(raffleId)}
             raffleId={Number(raffleId)}
@@ -144,14 +158,11 @@ export const TwitterRaffleResults = () => {
         <div className="bg-base-100 rounded-lg p-6 shadow-lg border-2 border-primary">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold">🔍 Raffle #{selectedRaffleId} Details</h3>
-            <button
-              onClick={() => setSelectedRaffleId(null)}
-              className="btn btn-sm btn-ghost"
-            >
+            <button onClick={() => setSelectedRaffleId(null)} className="btn btn-sm btn-ghost">
               ✕
             </button>
           </div>
-          
+
           {isLoadingRaffle ? (
             <div className="flex items-center justify-center py-8">
               <span className="loading loading-spinner"></span>
@@ -169,13 +180,13 @@ export const TwitterRaffleResults = () => {
 };
 
 // Individual Raffle Card Component
-const RaffleCard = ({ 
-  raffleId, 
-  onSelect, 
-  isSelected 
-}: { 
-  raffleId: number; 
-  onSelect: () => void; 
+const RaffleCard = ({
+  raffleId,
+  onSelect,
+  isSelected,
+}: {
+  raffleId: number;
+  onSelect: () => void;
   isSelected: boolean;
 }) => {
   const { data: raffle, isLoading } = useScaffoldReadContract({
@@ -205,7 +216,7 @@ const RaffleCard = ({
   const tweetId = extractTweetId(raffleData.tweetUrl);
 
   return (
-    <div 
+    <div
       className={`card bg-base-100 shadow-md cursor-pointer transition-all hover:shadow-lg ${
         isSelected ? "ring-2 ring-primary" : ""
       }`}
@@ -214,22 +225,26 @@ const RaffleCard = ({
       <div className="card-body p-4">
         <div className="flex justify-between items-start mb-2">
           <h4 className="font-semibold">Raffle #{raffleId}</h4>
-          <div className={`text-sm ${statusInfo.color}`}>
-            {statusInfo.label}
-          </div>
+          <div className={`text-sm ${statusInfo.color}`}>{statusInfo.label}</div>
         </div>
-        
+
         <div className="space-y-1 text-sm">
-          <p><strong>Type:</strong> {getRaffleTypeLabel(raffleData.raffleType)}</p>
-          <p><strong>Winners:</strong> {Number(raffleData.winnerCount)} + {Number(raffleData.backupCount)} backup</p>
-          <p><strong>Tweet:</strong> ...{tweetId?.slice(-8) || "Unknown"}</p>
-          <p><strong>Created:</strong> {formatTimeAgo(raffleData.createdAt)}</p>
+          <p>
+            <strong>Type:</strong> {getRaffleTypeLabel(raffleData.raffleType)}
+          </p>
+          <p>
+            <strong>Winners:</strong> {Number(raffleData.winnerCount)} + {Number(raffleData.backupCount)} backup
+          </p>
+          <p>
+            <strong>Tweet:</strong> ...{tweetId?.slice(-8) || "Unknown"}
+          </p>
+          <p>
+            <strong>Created:</strong> {formatTimeAgo(raffleData.createdAt)}
+          </p>
         </div>
 
         {raffleData.winners.length > 0 && (
-          <div className="mt-2 text-xs text-success">
-            ✅ {raffleData.winners.length} winners selected
-          </div>
+          <div className="mt-2 text-xs text-success">✅ {raffleData.winners.length} winners selected</div>
         )}
       </div>
     </div>
@@ -246,9 +261,9 @@ const RaffleDetails = ({ raffle }: { raffle: RaffleData }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-semibold text-gray-600">Tweet URL</label>
-          <a 
-            href={raffle.tweetUrl} 
-            target="_blank" 
+          <a
+            href={raffle.tweetUrl}
+            target="_blank"
             rel="noopener noreferrer"
             className="block text-blue-600 hover:underline text-sm break-all"
           >
@@ -322,38 +337,4 @@ const RaffleDetails = ({ raffle }: { raffle: RaffleData }) => {
       )}
     </div>
   );
-};
-
-// Helper functions (moved outside component to avoid re-creation)
-const getRaffleTypeLabel = (type: number) => {
-  switch (type) {
-    case 0: return "👍 Likes";
-    case 1: return "🔄 Retweets";
-    case 2: return "💬 Comments";
-    default: return "Unknown";
-  }
-};
-
-const getRaffleStatusLabel = (status: number) => {
-  switch (status) {
-    case 0: return { label: "🔄 Processing", color: "text-yellow-600" };
-    case 1: return { label: "✅ Completed", color: "text-green-600" };
-    case 2: return { label: "❌ Cancelled", color: "text-red-600" };
-    default: return { label: "Unknown", color: "text-gray-600" };
-  }
-};
-
-const formatTimeAgo = (timestamp: bigint) => {
-  const now = Date.now() / 1000;
-  const diff = now - Number(timestamp);
-  
-  if (diff < 60) return "Just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-};
-
-const extractTweetId = (url: string) => {
-  const match = url.match(/status\/(\d+)/);
-  return match ? match[1] : null;
 };

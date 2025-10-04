@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { parseEther } from "viem";
 import { useAccount } from "wagmi";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 // Helper function to validate Twitter URL
 const validateTwitterUrl = (url: string): boolean => {
@@ -19,6 +21,18 @@ export const TwitterRaffleForm = () => {
   });
   const [isCreating, setIsCreating] = useState(false);
 
+  const { data: raffleFee } = useScaffoldReadContract({
+    contractName: "TwitterRaffle",
+    functionName: "RAFFLE_FEE",
+  });
+
+  // VRF fee is hardcoded to 0.01 MON since contract doesn't expose VRF_FEE
+  const vrfFee = parseEther("0.01");
+
+  const { writeContractAsync: writeTwitterRaffleAsync } = useScaffoldWriteContract({
+    contractName: "TwitterRaffle",
+  });
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -26,7 +40,7 @@ export const TwitterRaffleForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!connectedAddress) {
       alert("Please connect your wallet to create a raffle!");
       return;
@@ -59,32 +73,44 @@ export const TwitterRaffleForm = () => {
     setIsCreating(true);
 
     try {
-      // Call backend to process Twitter data directly
-      const backendResponse = await fetch('http://localhost:3001/api/process-raffle', {
-        method: 'POST',
+      // 1. First create raffle on-chain (pays 0.1 MON + 0.01 MON VRF)
+      console.log("Creating raffle on-chain...");
+      const result = await writeTwitterRaffleAsync({
+        functionName: "createTwitterRaffle",
+        args: [formData.tweetUrl, parseInt(formData.raffleType), BigInt(winnerCount), BigInt(backupCount)],
+        value: raffleFee ? raffleFee + vrfFee : parseEther("0.11"),
+      });
+
+      console.log("On-chain raffle created:", result);
+
+      // 2. Then call backend to get Twitter data and display results
+      const backendResponse = await fetch("http://localhost:3001/api/process-raffle", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           raffleId: Date.now(), // Simple ID for now
           tweetUrl: formData.tweetUrl,
           raffleType: parseInt(formData.raffleType),
           winnerCount: winnerCount,
-          backupCount: backupCount
-        })
+          backupCount: backupCount,
+        }),
       });
-      
+
       const backendResult = await backendResponse.json();
-      
+
       if (backendResult.success) {
         // Display results in a nice format
-        const winnersList = backendResult.winners.map((w: any) => `@${w.username}`).join('\n• ');
-        const backupsList = backendResult.backups.length > 0 
-          ? backendResult.backups.map((b: any) => `@${b.username}`).join('\n• ')
-          : 'None';
-        
+        const winnersList = backendResult.winners.map((w: any) => `@${w.username}`).join("\n• ");
+        const backupsList =
+          backendResult.backups.length > 0
+            ? backendResult.backups.map((b: any) => `@${b.username}`).join("\n• ")
+            : "None";
+
         alert(`🎉 Twitter Raffle Completed Successfully!
         
+💰 Paid: 0.11 MON (0.1 MON fee + 0.01 MON VRF)
 📊 Results:
 • Total Participants: ${backendResult.totalParticipants}
 • Raffle Type: ${backendResult.raffleType}
@@ -93,13 +119,14 @@ export const TwitterRaffleForm = () => {
 • ${winnersList}
 
 🏅 Backup Winners (${backendResult.backups.length}):
-${backupsList === 'None' ? '• None' : '• ' + backupsList}
+${backupsList === "None" ? "• None" : "• " + backupsList}
 
-🔗 Tweet: ${backendResult.tweetUrl}`);
+🔗 Tweet: ${backendResult.tweetUrl}
+⛓️ Transaction: ${result}`);
       } else {
-        alert(`❌ Raffle processing failed: ${backendResult.error}`);
+        alert(`❌ Raffle created on-chain but Twitter processing failed: ${backendResult.error}`);
       }
-      
+
       // Reset form
       setFormData({
         tweetUrl: "",
@@ -107,20 +134,19 @@ ${backupsList === 'None' ? '• None' : '• ' + backupsList}
         winnerCount: "1",
         backupCount: "0",
       });
-      
     } catch (error) {
       console.error("Error processing raffle:", error);
-      alert("❌ Failed to process raffle. Please check your connection and try again.");
+      alert("❌ Failed to create raffle. Please check your balance and try again.");
     } finally {
       setIsCreating(false);
     }
   };
 
+  const totalFee = raffleFee ? raffleFee + vrfFee : parseEther("0.11");
+
   if (!connectedAddress) {
     return (
-      <div className="text-center text-lg text-gray-600">
-        Please connect your wallet to create a Twitter raffle.
-      </div>
+      <div className="text-center text-lg text-gray-600">Please connect your wallet to create a Twitter raffle.</div>
     );
   }
 
@@ -141,16 +167,12 @@ ${backupsList === 'None' ? '• None' : '• ' + backupsList}
           className="input input-bordered w-full"
           required
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Supports both twitter.com and x.com URLs
-        </p>
+        <p className="text-xs text-gray-500 mt-1">Supports both twitter.com and x.com URLs</p>
       </div>
 
       {/* Raffle Type Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Raffle Type
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Raffle Type</label>
         <div className="flex space-x-4">
           <label className="inline-flex items-center">
             <input
@@ -224,6 +246,17 @@ ${backupsList === 'None' ? '• None' : '• ' + backupsList}
         </div>
       </div>
 
+      {/* Fee Display */}
+      <div className="bg-base-200 p-4 rounded-lg">
+        <div className="flex justify-between items-center">
+          <span className="font-semibold">💰 Total Fee:</span>
+          <span className="text-lg font-bold text-primary">{parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON</span>
+        </div>
+        <p className="text-sm text-gray-600 mt-2">
+          0.1 MON raffle fee + 0.01 MON VRF fee (prevents spam & ensures fair randomness)
+        </p>
+      </div>
+
       {/* Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="font-semibold text-blue-800 mb-2">📋 Raffle Summary</h4>
@@ -231,12 +264,14 @@ ${backupsList === 'None' ? '• None' : '• ' + backupsList}
           Tweet URL: <span className="font-medium">{formData.tweetUrl || "N/A"}</span>
         </p>
         <p className="text-sm text-blue-700">
-          Raffle Type: <span className="font-medium">
+          Raffle Type:{" "}
+          <span className="font-medium">
             {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments"}
           </span>
         </p>
         <p className="text-sm text-blue-700">
-          Winners: <span className="font-medium">{formData.winnerCount}</span>, Backups: <span className="font-medium">{formData.backupCount}</span>
+          Winners: <span className="font-medium">{formData.winnerCount}</span>, Backups:{" "}
+          <span className="font-medium">{formData.backupCount}</span>
         </p>
       </div>
 
@@ -245,12 +280,12 @@ ${backupsList === 'None' ? '• None' : '• ' + backupsList}
         {isCreating ? (
           <>
             <span className="loading loading-spinner"></span>
-            Processing Twitter Raffle...
+            Creating Raffle & Processing Twitter Data...
           </>
         ) : (
           <>
-            🎲 Start Twitter Raffle
-            <span className="text-sm opacity-80">(Free - No fees required!)</span>
+            🎲 Create Twitter Raffle
+            <span className="text-sm opacity-80">({parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON)</span>
           </>
         )}
       </button>
