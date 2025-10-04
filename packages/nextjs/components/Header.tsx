@@ -81,8 +81,8 @@ export const Header = () => {
           </ul>
         </details>
         <Link href="/" passHref className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
-          <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-lg">N</span>
+          <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-purple-600/30">
+            <img src="/images/narc4s-logo.jpg" alt="NARC4S Logo" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-white text-lg">NARC4S</span>

@@ -1,6 +1,10 @@
 # NARC4S v2.0 🎲
 
-**Fair & Transparent Twitter Raffle Verifier**
+<div align="center">
+  <img src="packages/nextjs/public/images/narc4s-logo.jpg" alt="NARC4S Logo" width="120" height="120" style="border-radius: 20px; border: 3px solid #8b5cf6;">
+  
+  **Fair & Transparent Twitter Raffle Verifier**
+</div>
 
 A decentralized Twitter raffle system built on Monad testnet, powered by Pyth VRF for provably fair randomness and real-time Twitter API integration.
 

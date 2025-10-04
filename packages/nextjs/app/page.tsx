@@ -10,11 +10,18 @@ const Home: NextPage = () => {
         <div className="flex items-center flex-col grow pt-16">
           <div className="px-5 text-center mb-12">
             <div className="mb-8">
-              <h1 className="text-6xl font-bold text-white mb-4">NARC4S</h1>
-              <div className="flex items-center justify-center space-x-2 mb-2">
-                <span className="text-gray-400 text-xl font-semibold">v2.0</span>
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden border-3 border-purple-600/40 mr-6 shadow-2xl">
+                  <img src="/images/narc4s-logo.jpg" alt="NARC4S Logo" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <div className="flex items-center mb-2">
+                    <h1 className="text-6xl font-bold text-white mr-4">NARC4S</h1>
+                    <span className="text-gray-400 text-xl font-semibold">v2.0</span>
+                  </div>
+                  <p className="text-gray-400 text-lg font-medium">Twitter Raffle Verifier</p>
+                </div>
               </div>
-              <p className="text-gray-400 text-lg font-medium">Twitter Raffle Verifier</p>
             </div>
 
             <p className="text-gray-300 text-lg mb-8 max-w-3xl mx-auto leading-relaxed">
