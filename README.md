@@ -1,9 +1,11 @@
-# NARC4S v2.0 🎲
+# NARC4S v2.0 🔑
 
 <div align="center">
-  <img src="packages/nextjs/public/images/narc4s-logo.jpg" alt="NARC4S Logo" width="120" height="120" style="border-radius: 20px; border: 3px solid #8b5cf6;">
+  <img src="packages/nextjs/public/images/narc4s-logo.jpg" alt="NARC4S Logo" width="150" height="150" style="border-radius: 25px; border: 4px solid #8b5cf6; box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);">
   
-  **Fair & Transparent Twitter Raffle Verifier**
+  **🎲 Provably Fair Twitter Raffles on Monad**
+  
+  *The key to transparent, blockchain-verified social media giveaways*
 </div>
 
 A decentralized Twitter raffle system built on Monad testnet, powered by Pyth VRF for provably fair randomness and real-time Twitter API integration.
@@ -351,4 +353,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for the community | NARC4S v2.0 | Fair & Transparent Raffles**
+<div align="center">
+  <img src="packages/nextjs/public/images/narc4s-logo.jpg" alt="NARC4S" width="60" height="60" style="border-radius: 15px; opacity: 0.8;">
+  
+  **NARC4S v2.0** - *The key to fair raffles* 🔑
+  
+  *Built with ❤️ for the Monad Hackathon*
+</div>

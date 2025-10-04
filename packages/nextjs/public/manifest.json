@@ -1,5 +1,5 @@
 {
-  "name": "Scaffold-ETH 2 DApp",
-  "description": "A DApp built with Scaffold-ETH",
-  "iconPath": "logo.svg"
+  "name": "NARC4S - Provably Fair Twitter Raffles",
+  "description": "Decentralized Twitter raffle platform with Pyth VRF on Monad",
+  "iconPath": "favicon.png"
 }
