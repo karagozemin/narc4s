@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "dev:ngrok": "NGROK_URL=https://1a3b2ef0bf9c.ngrok-free.app node --watch server.js",
+    "test:health": "curl -H 'ngrok-skip-browser-warning: true' https://1a3b2ef0bf9c.ngrok-free.app/api/health",
+    "test:local": "curl http://localhost:3001/api/health",
+    "test:ngrok": "node test-ngrok.js"
   },
   "keywords": [
     "twitter",

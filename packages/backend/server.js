@@ -9,8 +9,34 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Ngrok URL configuration
+const NGROK_URL = process.env.NGROK_URL || 'https://1a3b2ef0bf9c.ngrok-free.app';
+const BACKEND_URL = process.env.BACKEND_URL || NGROK_URL;
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001', 
+    'https://localhost:3000',
+    'https://localhost:3001',
+    NGROK_URL,
+    'https://1a3b2ef0bf9c.ngrok-free.app',
+    // Add your production domains here
+    'https://narc4s.vercel.app',
+    'https://*.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
+}));
+
+// Handle ngrok browser warning
+app.use((req, res, next) => {
+  res.setHeader('ngrok-skip-browser-warning', 'true');
+  next();
+});
+
 app.use(express.json());
 
 // Twitter API client
@@ -360,12 +386,23 @@ function getRaffleTypeString(type) {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'NARC4S Backend',
+    version: '2.0',
+    ngrokUrl: NGROK_URL,
+    backendUrl: BACKEND_URL,
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 NARC4S Backend Service running on port ${PORT}`);
+  console.log(`🌐 Local URL: http://localhost:${PORT}`);
+  console.log(`🔗 Ngrok URL: ${NGROK_URL}`);
   console.log(`🐦 Twitter API integration ready`);
   console.log(`⛓️  Connected to Monad testnet`);
+  console.log(`📡 Backend accessible at: ${BACKEND_URL}`);
 });
