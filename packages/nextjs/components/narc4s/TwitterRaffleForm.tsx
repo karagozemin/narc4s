@@ -142,7 +142,13 @@ export const TwitterRaffleForm = () => {
 
   if (!connectedAddress) {
     return (
-      <div className="text-center text-lg text-gray-600">Please connect your wallet to create a Twitter raffle.</div>
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🔗</span>
+        </div>
+        <h3 className="text-xl font-semibold text-white mb-2">Connect Your Wallet</h3>
+        <p className="text-gray-400">Please connect your wallet to create a Twitter raffle</p>
+      </div>
     );
   }
 
@@ -151,8 +157,11 @@ export const TwitterRaffleForm = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Tweet URL Input */}
         <div>
-          <label htmlFor="tweetUrl" className="block text-sm font-medium text-gray-700 mb-2">
-            Tweet URL
+          <label htmlFor="tweetUrl" className="block text-sm font-semibold text-white mb-3">
+            <span className="flex items-center space-x-2">
+              <span>🔗</span>
+              <span>Tweet URL</span>
+            </span>
           </label>
           <input
             type="url"
@@ -161,58 +170,95 @@ export const TwitterRaffleForm = () => {
             value={formData.tweetUrl}
             onChange={handleInputChange}
             placeholder="https://twitter.com/user/status/1234567890 or https://x.com/user/status/1234567890"
-            className="input input-bordered w-full"
+            className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all"
             required
           />
-          <p className="text-xs text-gray-500 mt-1">Supports both twitter.com and x.com URLs</p>
+          <p className="text-xs text-gray-400 mt-2">Supports both twitter.com and x.com URLs</p>
         </div>
 
         {/* Raffle Type Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Raffle Type</label>
-          <div className="flex space-x-4">
-            <label className="inline-flex items-center">
+          <label className="block text-sm font-semibold text-white mb-3">
+            <span className="flex items-center space-x-2">
+              <span>⚙️</span>
+              <span>Raffle Type</span>
+            </span>
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="relative">
               <input
                 type="radio"
                 name="raffleType"
                 value="0"
                 checked={formData.raffleType === "0"}
                 onChange={handleInputChange}
-                className="radio radio-primary"
+                className="sr-only"
               />
-              <span className="ml-2">👍 Likes</span>
+              <div
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  formData.raffleType === "0"
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-gray-600 bg-gray-700/30 hover:border-gray-500"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-xl">👍</span>
+                  <span className="font-medium text-white">Likes</span>
+                </div>
+              </div>
             </label>
-            <label className="inline-flex items-center">
+
+            <label className="relative">
               <input
                 type="radio"
                 name="raffleType"
                 value="1"
                 checked={formData.raffleType === "1"}
                 onChange={handleInputChange}
-                className="radio radio-primary"
+                className="sr-only"
               />
-              <span className="ml-2">🔄 Retweets</span>
+              <div
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  formData.raffleType === "1"
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-gray-600 bg-gray-700/30 hover:border-gray-500"
+                }`}
+              >
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-xl">🔄</span>
+                  <span className="font-medium text-white">Retweets</span>
+                </div>
+              </div>
             </label>
-            <label className="inline-flex items-center">
+
+            <label className="relative opacity-60 cursor-not-allowed">
               <input
                 type="radio"
                 name="raffleType"
                 value="2"
                 checked={formData.raffleType === "2"}
                 onChange={handleInputChange}
-                className="radio radio-primary"
+                className="sr-only"
                 disabled={true}
               />
-              <span className="ml-2 text-gray-400">💬 Comments (soon)</span>
+              <div className="p-4 rounded-xl border-2 border-gray-700 bg-gray-800/30">
+                <div className="flex items-center justify-center space-x-2">
+                  <span className="text-xl">💬</span>
+                  <span className="font-medium text-gray-500">Comments (soon)</span>
+                </div>
+              </div>
             </label>
           </div>
         </div>
 
         {/* Winner and Backup Count */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="winnerCount" className="block text-sm font-medium text-gray-700 mb-2">
-              Number of Winners (1-50)
+            <label htmlFor="winnerCount" className="block text-sm font-semibold text-white mb-3">
+              <span className="flex items-center space-x-2">
+                <span>🏆</span>
+                <span>Number of Winners (1-50)</span>
+              </span>
             </label>
             <input
               type="number"
@@ -222,13 +268,16 @@ export const TwitterRaffleForm = () => {
               onChange={handleInputChange}
               min="1"
               max="50"
-              className="input input-bordered w-full"
+              className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all"
               required
             />
           </div>
           <div>
-            <label htmlFor="backupCount" className="block text-sm font-medium text-gray-700 mb-2">
-              Number of Backup Winners (0-20)
+            <label htmlFor="backupCount" className="block text-sm font-semibold text-white mb-3">
+              <span className="flex items-center space-x-2">
+                <span>🏅</span>
+                <span>Number of Backup Winners (0-20)</span>
+              </span>
             </label>
             <input
               type="number"
@@ -238,55 +287,79 @@ export const TwitterRaffleForm = () => {
               onChange={handleInputChange}
               min="0"
               max="20"
-              className="input input-bordered w-full"
+              className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all"
               required
             />
           </div>
         </div>
 
         {/* Fee Display */}
-        <div className="bg-base-200 p-4 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span className="font-semibold">💰 Total Fee:</span>
-            <span className="text-lg font-bold text-primary">
+        <div className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 border border-purple-500/30 rounded-xl p-6">
+          <div className="flex justify-between items-center mb-3">
+            <span className="font-semibold text-white flex items-center space-x-2">
+              <span>💰</span>
+              <span>Total Fee:</span>
+            </span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               {parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON
             </span>
           </div>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-300 leading-relaxed">
             0.1 MON raffle fee + 0.01 MON VRF fee (prevents spam & ensures fair randomness)
           </p>
         </div>
 
         {/* Summary */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-800 mb-2">📋 Raffle Summary</h4>
-          <p className="text-sm text-blue-700">
-            Tweet URL: <span className="font-medium">{formData.tweetUrl || "N/A"}</span>
-          </p>
-          <p className="text-sm text-blue-700">
-            Raffle Type:{" "}
-            <span className="font-medium">
-              {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments (soon)"}
-            </span>
-          </p>
-          <p className="text-sm text-blue-700">
-            Winners: <span className="font-medium">{formData.winnerCount}</span>, Backups:{" "}
-            <span className="font-medium">{formData.backupCount}</span>
-          </p>
+        <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+          <h4 className="font-semibold text-white mb-4 flex items-center space-x-2">
+            <span>📋</span>
+            <span>Raffle Summary</span>
+          </h4>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-400">Tweet URL:</span>
+              <span className="text-white font-medium text-right max-w-xs truncate">{formData.tweetUrl || "N/A"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Raffle Type:</span>
+              <span className="text-purple-400 font-medium">
+                {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments (soon)"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Winners:</span>
+              <span className="text-white font-medium">{formData.winnerCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400">Backups:</span>
+              <span className="text-white font-medium">{formData.backupCount}</span>
+            </div>
+          </div>
         </div>
 
         {/* Submit Button */}
-        <button type="submit" className="btn btn-primary btn-lg w-full" disabled={isCreating}>
+        <button
+          type="submit"
+          className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
+            isCreating
+              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-purple-500/25"
+          }`}
+          disabled={isCreating}
+        >
           {isCreating ? (
-            <>
-              <span className="loading loading-spinner"></span>
-              Creating Raffle & Processing Twitter Data...
-            </>
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>Creating Raffle & Processing Twitter Data...</span>
+            </div>
           ) : (
-            <>
-              🎲 Create Twitter Raffle
-              <span className="text-sm opacity-80">({parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON)</span>
-            </>
+            <div className="flex items-center justify-center space-x-3">
+              <span className="text-xl">🎲</span>
+              <span>Create Twitter Raffle</span>
+              <span className="text-sm opacity-80 bg-white/10 px-2 py-1 rounded-lg">
+                {parseFloat((Number(totalFee) / 1e18).toFixed(3))} MON
+              </span>
+            </div>
           )}
         </button>
       </form>
@@ -295,70 +368,91 @@ export const TwitterRaffleForm = () => {
       {raffleResults && (
         <div className="mt-8">
           {raffleResults.success ? (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <div className="text-2xl mr-3">🎉</div>
-                <h3 className="text-xl font-bold text-green-800">Twitter Raffle Completed Successfully!</h3>
+            <div className="bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-500/30 rounded-2xl p-8">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mr-4">
+                  <span className="text-3xl">🎉</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Raffle Completed!</h3>
+                  <p className="text-green-300">Your Twitter raffle was successful</p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-white rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-700 mb-2">📊 Raffle Info</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <strong>Type:</strong> {raffleResults.raffleType}
-                    </p>
-                    <p>
-                      <strong>Total Participants:</strong> {raffleResults.totalParticipants}
-                    </p>
-                    <p>
-                      <strong>Fee Paid:</strong> {raffleResults.totalFee} MON
-                    </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+                  <h4 className="font-semibold text-white mb-4 flex items-center space-x-2">
+                    <span>📊</span>
+                    <span>Raffle Info</span>
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Type:</span>
+                      <span className="text-purple-400 font-medium">{raffleResults.raffleType}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Participants:</span>
+                      <span className="text-white font-medium">{raffleResults.totalParticipants}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Fee Paid:</span>
+                      <span className="text-green-400 font-medium">{raffleResults.totalFee} MON</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-700 mb-2">🔗 Links</h4>
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <strong>Tweet:</strong>{" "}
+                <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+                  <h4 className="font-semibold text-white mb-4 flex items-center space-x-2">
+                    <span>🔗</span>
+                    <span>Links</span>
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-gray-400 block mb-1">Tweet:</span>
                       <a
                         href={raffleResults.tweetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
                       >
-                        View Tweet
+                        View Original Tweet
                       </a>
-                    </p>
-                    <p>
-                      <strong>Transaction:</strong>{" "}
-                      <span className="font-mono text-xs text-gray-600">
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block mb-1">Transaction:</span>
+                      <span className="font-mono text-xs text-gray-300 bg-gray-700/50 px-2 py-1 rounded">
                         {String(raffleResults.transactionHash).slice(0, 20)}...
                       </span>
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Winners Section */}
-              <div className="mb-4">
-                <h4 className="font-semibold text-green-700 mb-3 flex items-center">
-                  <span className="text-xl mr-2">🏆</span>
-                  Winners ({raffleResults.winners.length})
+              <div className="mb-6">
+                <h4 className="font-semibold text-white mb-4 flex items-center space-x-2">
+                  <span className="text-2xl">🏆</span>
+                  <span className="text-xl">Winners ({raffleResults.winners.length})</span>
                 </h4>
-                <div className="bg-white rounded-lg p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {raffleResults.winners.map((winner: any, index: number) => (
                       <a
                         key={index}
                         href={`https://twitter.com/${winner.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center space-x-2 p-3 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                        className="group flex items-center space-x-3 p-4 bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-xl hover:border-green-400/50 transition-all"
                       >
-                        <span className="text-green-600 font-semibold">#{index + 1}</span>
-                        <span className="text-green-800 hover:underline">@{winner.username}</span>
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                          <span className="text-white font-bold text-sm">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <span className="text-white font-medium group-hover:text-green-300 transition-colors">
+                            @{winner.username}
+                          </span>
+                          <div className="text-xs text-gray-400">Click to view profile</div>
+                        </div>
                       </a>
                     ))}
                   </div>
@@ -367,23 +461,30 @@ export const TwitterRaffleForm = () => {
 
               {/* Backup Winners Section */}
               {raffleResults.backups.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-yellow-700 mb-3 flex items-center">
-                    <span className="text-xl mr-2">🏅</span>
-                    Backup Winners ({raffleResults.backups.length})
+                <div className="mb-6">
+                  <h4 className="font-semibold text-white mb-4 flex items-center space-x-2">
+                    <span className="text-2xl">🏅</span>
+                    <span className="text-xl">Backup Winners ({raffleResults.backups.length})</span>
                   </h4>
-                  <div className="bg-white rounded-lg p-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {raffleResults.backups.map((backup: any, index: number) => (
                         <a
                           key={index}
                           href={`https://twitter.com/${backup.username}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center space-x-2 p-3 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors"
+                          className="group flex items-center space-x-3 p-4 bg-gradient-to-r from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 rounded-xl hover:border-yellow-400/50 transition-all"
                         >
-                          <span className="text-yellow-600 font-semibold">B{index + 1}</span>
-                          <span className="text-yellow-800 hover:underline">@{backup.username}</span>
+                          <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">B{index + 1}</span>
+                          </div>
+                          <div>
+                            <span className="text-white font-medium group-hover:text-yellow-300 transition-colors">
+                              @{backup.username}
+                            </span>
+                            <div className="text-xs text-gray-400">Click to view profile</div>
+                          </div>
                         </a>
                       ))}
                     </div>
@@ -391,22 +492,37 @@ export const TwitterRaffleForm = () => {
                 </div>
               )}
 
-              <div className="mt-4 text-center">
-                <button onClick={() => setRaffleResults(null)} className="btn btn-sm btn-outline">
+              <div className="text-center">
+                <button
+                  onClick={() => setRaffleResults(null)}
+                  className="px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors"
+                >
                   Create Another Raffle
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <div className="text-2xl mr-3">❌</div>
-                <h3 className="text-xl font-bold text-red-800">Raffle Failed</h3>
+            <div className="bg-gradient-to-r from-red-900/20 to-pink-900/20 border border-red-500/30 rounded-2xl p-8">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mr-4">
+                  <span className="text-3xl">❌</span>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white">Raffle Failed</h3>
+                  <p className="text-red-300">Something went wrong</p>
+                </div>
               </div>
-              <p className="text-red-700 mb-4">{raffleResults.error}</p>
-              <button onClick={() => setRaffleResults(null)} className="btn btn-sm btn-outline btn-error">
-                Try Again
-              </button>
+              <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl p-6 mb-6">
+                <p className="text-red-300 leading-relaxed">{raffleResults.error}</p>
+              </div>
+              <div className="text-center">
+                <button
+                  onClick={() => setRaffleResults(null)}
+                  className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
             </div>
           )}
         </div>
