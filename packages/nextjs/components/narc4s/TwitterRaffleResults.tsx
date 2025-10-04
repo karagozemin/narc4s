@@ -27,7 +27,7 @@ const getRaffleTypeLabel = (type: number) => {
     case 1:
       return "🔄 Retweets";
     case 2:
-      return "💬 Comments";
+      return "💬 Comments (soon)";
     default:
       return "Unknown";
   }

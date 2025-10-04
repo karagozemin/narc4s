@@ -204,8 +204,9 @@ ${backupsList === "None" ? "• None" : "• " + backupsList}
               checked={formData.raffleType === "2"}
               onChange={handleInputChange}
               className="radio radio-primary"
+              disabled={true}
             />
-            <span className="ml-2">💬 Comments</span>
+            <span className="ml-2 text-gray-400">💬 Comments (soon)</span>
           </label>
         </div>
       </div>
@@ -266,7 +267,7 @@ ${backupsList === "None" ? "• None" : "• " + backupsList}
         <p className="text-sm text-blue-700">
           Raffle Type:{" "}
           <span className="font-medium">
-            {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments"}
+            {formData.raffleType === "0" ? "Likes" : formData.raffleType === "1" ? "Retweets" : "Comments (soon)"}
           </span>
         </p>
         <p className="text-sm text-blue-700">

@@ -213,8 +213,10 @@ app.post('/api/process-raffle', async (req, res) => {
       case 1: // RETWEETS
         users = await getRetweetingUsers(tweetId);
         break;
-      case 2: // COMMENTS
-        users = await getReplyingUsers(tweetId);
+      case 2: // COMMENTS - Coming soon
+        return res.status(400).json({ 
+          error: 'Comments raffle feature is coming soon! Please use Likes or Retweets for now.' 
+        });
         break;
       default:
         return res.status(400).json({ error: 'Invalid raffle type' });
@@ -287,7 +289,7 @@ function getRaffleTypeString(type) {
   switch (parseInt(type)) {
     case 0: return "Likes";
     case 1: return "Retweets";
-    case 2: return "Comments";
+    case 2: return "Comments (soon)";
     default: return "Unknown";
   }
 }
