@@ -11,29 +11,24 @@ export type BaseConfig = {
 
 export type ScaffoldConfig = BaseConfig;
 
-export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+export const DEFAULT_MONAD_RPC = "https://testnet-rpc.monad.xyz";
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.foundry],
+  targetNetworks: [chains.monadTestnet],
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
-  // This is ours Alchemy's default API key.
-  // You can get your own at https://dashboard.alchemyapi.io
-  // It's recommended to store it in an env variable:
-  // .env.local for local testing, and in the Vercel/system env config for live apps.
-  alchemyApiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || DEFAULT_ALCHEMY_API_KEY,
+  // Monad RPC endpoint
+  alchemyApiKey: process.env.NEXT_PUBLIC_MONAD_RPC || DEFAULT_MONAD_RPC,
   // If you want to use a different RPC for a specific network, you can add it here.
   // The key is the chain ID, and the value is the HTTP RPC URL
   rpcOverrides: {
     // Example:
     // [chains.mainnet.id]: "https://mainnet.rpc.buidlguidl.com",
   },
-  // This is ours WalletConnect's default project ID.
-  // You can get your own at https://cloud.walletconnect.com
-  // It's recommended to store it in an env variable:
-  // .env.local for local testing, and in the Vercel/system env config for live apps.
+  // WalletConnect Project ID for Monad dApp
   walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "3a8170812b534d0ff9d794f19a901d64",
+  // Only use local burner wallet for development (set to false for production)
   onlyLocalBurnerWallet: true,
 } as const satisfies ScaffoldConfig;
 
