@@ -50,7 +50,20 @@ async function getLikingUsers(tweetId) {
     console.error('Error fetching liking users:', error.message);
     console.error('Full error:', error);
     
-    // Fallback: return mock data for testing
+    // Check if it's a rate limit error
+    if (error.code === 429) {
+      const resetTime = error.rateLimit?.reset;
+      const resetDate = resetTime ? new Date(resetTime * 1000) : new Date(Date.now() + 15 * 60 * 1000);
+      const waitMinutes = Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60));
+      
+      console.log(`❌ Twitter API rate limit exceeded. Reset at: ${resetDate.toLocaleTimeString()}`);
+      console.log(`⏰ Please wait ${waitMinutes} minutes before trying again.`);
+      
+      // Return empty array with rate limit info instead of mock data
+      throw new Error(`Twitter API rate limit exceeded. Please wait ${waitMinutes} minutes and try again. Reset time: ${resetDate.toLocaleTimeString()}`);
+    }
+    
+    // For other errors, still return mock data for testing
     console.log('Returning mock data for testing...');
     return [
       { id: '1', username: 'testuser1', address: null },
@@ -83,7 +96,20 @@ async function getRetweetingUsers(tweetId) {
     console.error('Error fetching retweeting users:', error.message);
     console.error('Full error:', error);
     
-    // Fallback: return mock data for testing
+    // Check if it's a rate limit error
+    if (error.code === 429) {
+      const resetTime = error.rateLimit?.reset;
+      const resetDate = resetTime ? new Date(resetTime * 1000) : new Date(Date.now() + 15 * 60 * 1000);
+      const waitMinutes = Math.ceil((resetDate.getTime() - Date.now()) / (1000 * 60));
+      
+      console.log(`❌ Twitter API rate limit exceeded. Reset at: ${resetDate.toLocaleTimeString()}`);
+      console.log(`⏰ Please wait ${waitMinutes} minutes before trying again.`);
+      
+      // Return empty array with rate limit info instead of mock data
+      throw new Error(`Twitter API rate limit exceeded. Please wait ${waitMinutes} minutes and try again. Reset time: ${resetDate.toLocaleTimeString()}`);
+    }
+    
+    // For other errors, still return mock data for testing
     console.log('Returning mock data for testing...');
     return [
       { id: '6', username: 'retweeter1', address: null },
