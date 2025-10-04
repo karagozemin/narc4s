@@ -23,7 +23,7 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
             {nativeCurrencyPrice > 0 && (
               <div>
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 cursor-auto">
+                <div className="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 cursor-auto">
                   <CurrencyDollarIcon className="h-4 w-4" />
                   <span>{nativeCurrencyPrice.toFixed(2)}</span>
                 </div>
@@ -51,12 +51,12 @@ export const Footer = () => {
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div className="text-center">
               <span className="text-gray-400">
-                Built with <HeartIcon className="inline-block h-4 w-4 text-purple-400" /> for the community
+                Built with <HeartIcon className="inline-block h-4 w-4 text-purple-500" /> for the community
               </span>
             </div>
             <span className="text-gray-600">·</span>
             <div className="text-center">
-              <span className="text-purple-400 font-semibold">NARC4S v2.0</span>
+              <span className="text-purple-500 font-semibold">NARC4S v2.0</span>
             </div>
             <span className="text-gray-600">·</span>
             <div className="text-center">

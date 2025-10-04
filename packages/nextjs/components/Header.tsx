@@ -39,9 +39,7 @@ export const HeaderMenuLinks = () => {
               href={href}
               passHref
               className={`${
-                isActive
-                  ? "bg-purple-600/20 text-purple-300 border border-purple-500/30"
-                  : "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                isActive ? "bg-purple-600 text-white" : "text-gray-300 hover:text-white hover:bg-gray-700"
               } transition-all duration-200 py-2 px-4 text-sm rounded-xl gap-2 grid grid-flow-col font-medium`}
             >
               {icon}
@@ -67,10 +65,10 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-gray-900/95 backdrop-blur-sm border-b border-gray-800 min-h-0 shrink-0 justify-between z-20 px-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-gray-900 border-b border-gray-800 min-h-0 shrink-0 justify-between z-20 px-0 sm:px-2">
       <div className="navbar-start w-auto lg:w-1/2">
         <details className="dropdown" ref={burgerMenuRef}>
-          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-gray-700/50 text-gray-300">
+          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-gray-700 text-gray-300">
             <Bars3Icon className="h-1/2" />
           </summary>
           <ul
@@ -83,12 +81,12 @@ export const Header = () => {
           </ul>
         </details>
         <Link href="/" passHref className="hidden lg:flex items-center gap-3 ml-4 mr-6 shrink-0">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center">
             <span className="text-white font-bold text-lg">N</span>
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-white text-lg">NARC4S</span>
-            <span className="text-xs text-purple-300">Twitter Raffle Verifier</span>
+            <span className="text-xs text-gray-400">Twitter Raffle Verifier</span>
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
