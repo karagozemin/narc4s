@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "packages/nextjs/package.json",
+      "use": "@vercel/next",
+      "config": {
+        "distDir": ".next"
+      }
+    },
+    {
+      "src": "packages/backend/api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/packages/backend/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/packages/nextjs/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_BACKEND_URL": "https://narc4s.vercel.app",
+    "NEXT_PUBLIC_MONAD_RPC": "https://testnet-rpc.monad.xyz",
+    "TWITTER_API_KEY": "@twitter_api_key",
+    "TWITTER_API_KEY_SECRET": "@twitter_api_key_secret",
+    "TWITTER_ACCESS_TOKEN": "@twitter_access_token", 
+    "TWITTER_ACCESS_TOKEN_SECRET": "@twitter_access_token_secret",
+    "TWITTER_BEARER_TOKEN": "@twitter_bearer_token"
+  }
+}

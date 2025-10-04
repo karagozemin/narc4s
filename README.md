@@ -90,7 +90,10 @@ TWITTER_BEARER_TOKEN=your_bearer_token
 PRIVATE_KEY=your_private_key
 CONTRACT_ADDRESS=deployed_contract_address
 
-# Server Configuration
+# Backend Configuration  
+NEXT_PUBLIC_BACKEND_URL=https://narc4s-backend.vercel.app
+
+# Server Configuration (for local development)
 PORT=3001
 ```
 

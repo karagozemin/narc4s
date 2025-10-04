@@ -1,3 +1,16 @@
 {
-  "installCommand": "yarn install"
+  "version": 2,
+  "buildCommand": "yarn build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_BACKEND_URL": "https://narc4s-backend.vercel.app",
+    "NEXT_PUBLIC_MONAD_RPC": "https://testnet-rpc.monad.xyz"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_BACKEND_URL": "https://narc4s-backend.vercel.app",
+      "NEXT_PUBLIC_MONAD_RPC": "https://testnet-rpc.monad.xyz"
+    }
+  }
 }

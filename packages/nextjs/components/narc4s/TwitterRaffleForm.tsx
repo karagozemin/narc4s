@@ -72,7 +72,8 @@ export const TwitterRaffleForm = () => {
       console.log("Transaction confirmed:", result);
       setTransactionStep("Processing Twitter data...");
 
-      const backendResponse = await fetch("http://localhost:3001/api/process-raffle", {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
+      const backendResponse = await fetch(`${backendUrl}/api/process-raffle`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
