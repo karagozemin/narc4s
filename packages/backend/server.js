@@ -24,7 +24,9 @@ app.use(cors({
     'https://1a3b2ef0bf9c.ngrok-free.app',
     // Add your production domains here
     'https://narc4s.vercel.app',
-    'https://*.vercel.app'
+    'https://narc4s-narc4s.vercel.app',
+    'https://narc4s-git-main-narc4s.vercel.app',
+    /^https:\/\/.*\.vercel\.app$/
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

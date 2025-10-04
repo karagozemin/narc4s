@@ -120,7 +120,9 @@ export default async function handler(req, res) {
     'https://localhost:3001',
     NGROK_URL,
     'https://1a3b2ef0bf9c.ngrok-free.app',
-    'https://narc4s.vercel.app'
+    'https://narc4s.vercel.app',
+    'https://narc4s-narc4s.vercel.app',
+    'https://narc4s-git-main-narc4s.vercel.app'
   ];
   
   const origin = req.headers.origin;

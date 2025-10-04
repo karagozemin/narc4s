@@ -89,7 +89,15 @@ export const TwitterRaffleForm = () => {
         }),
       });
 
+      console.log("Backend response status:", backendResponse.status);
+      console.log("Backend response headers:", backendResponse.headers);
+
+      if (!backendResponse.ok) {
+        throw new Error(`Backend request failed: ${backendResponse.status} ${backendResponse.statusText}`);
+      }
+
       const backendResult = await backendResponse.json();
+      console.log("Backend result:", backendResult);
 
       // Add realistic VRF processing delay with professional messages
       setTransactionStep("Pyth VRF randomness integrated into transaction...");
