@@ -229,23 +229,39 @@ app.post('/api/process-raffle', async (req, res) => {
     console.log(`Processing raffle ${raffleId} for tweet ${tweetId}, type: ${raffleType}`);
     console.log(`Winners: ${winnerCount}, Backups: ${backupCount || 0}`);
     
-    let users = [];
-    
     // Get users based on raffle type
-    switch (parseInt(raffleType)) {
-      case 0: // LIKES
-        users = await getLikingUsers(tweetId);
-        break;
-      case 1: // RETWEETS
-        users = await getRetweetingUsers(tweetId);
-        break;
-      case 2: // COMMENTS - Coming soon
-        return res.status(400).json({ 
-          error: 'Comments raffle feature is coming soon! Please use Likes or Retweets for now.' 
+    let users = [];
+    try {
+      switch (parseInt(raffleType)) {
+        case 0: // LIKES
+          users = await getLikingUsers(tweetId);
+          break;
+        case 1: // RETWEETS
+          users = await getRetweetingUsers(tweetId);
+          break;
+        case 2: // COMMENTS - Coming soon
+          return res.status(400).json({ 
+            success: false,
+            error: 'Comments raffle feature is coming soon! Please use Likes or Retweets for now.' 
+          });
+          break;
+        default:
+          return res.status(400).json({ 
+            success: false,
+            error: 'Invalid raffle type' 
+          });
+      }
+    } catch (twitterError) {
+      // Handle Twitter API specific errors
+      if (twitterError.message && twitterError.message.includes('rate limit exceeded')) {
+        return res.status(429).json({ 
+          success: false,
+          error: twitterError.message 
         });
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid raffle type' });
+      }
+      
+      // Re-throw other errors to be handled by main catch block
+      throw twitterError;
     }
     
     console.log(`Found ${users.length} users`);
